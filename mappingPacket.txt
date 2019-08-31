@@ -1,0 +1,4 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
+   							s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+   							<s:Body><u:AddPortMapping xmlns:s="urn:schemas-upnp-org:service:WANPPPConnection:1"><NewRemoteHost></NewRemoteHost><NewExternalPort>395</NewExternalPort><NewProtocol>TCP</NewProtocol><NewInternalPort>12196</NewInternalPort><NewInternalClient>192.168.1.100</NewInternalClient><NewEnabled>1</NewEnabled><NewPortMappingDescription>Big description string, just to consume a bit more memory. We have about a Tweet.</NewPortMappingDescription><NewLeaseDuration>1</NewLeaseDuration></u:AddPortMapping></s:Body>
+							</s:Envelope>
