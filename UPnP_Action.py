@@ -1,4 +1,4 @@
-#! /usr/bin/env python 27
+#! /usr/bin/env python3
 from UPnP_State_Variable_Table import *
 
 # UPnP Standard 1.0 Error Codes
@@ -69,24 +69,24 @@ class UPnP_Action:
 
 	def fill_Argument_Datatypes(self):
 		self.num_State_Variables = len(self.state_Variable_Table.variables)
-		print "The svt contains:"
+		print("The svt contains:")
 		for entry in self.state_Variable_Table.variables:
-			print "Variable: ", variable.name
-		print "And that's it."
+			print("Variable: ", variable.name)
+		print("And that's it.")
 		for entry in self.arguments:
 			this_Argument = entry.related_State_Variable
-			print this_Argument
+			print(this_Argument)
 			for variable in self.state_Variable_Table.variables:
-				print "Checking variable: ", variable.name, " against: ", this_Argument
+				print("Checking variable: ", variable.name, " against: ", this_Argument)
 				if variable.name.upper().strip() == this_Argument.upper().strip():
 					entry.datatype = variable.datatype
 
 	def print_Action_Arguments(self):
-		print "\n		Note: Arguments with a direction of 'in' will have to be supplied by you, 'out' arguments will be supplied to you.\n"
+		print("\n		Note: Arguments with a direction of 'in' will have to be supplied by you, 'out' arguments will be supplied to you.\n")
 		for entry in self.arguments:
-			print "		Argument name:			", entry.name
-			print "		Argument type:			", entry.datatype
-			print "		Argument direction:		", entry.direction
-			print "		Related State Variable:		", entry.related_State_Variable.strip()
-			print ""
-		print "\n"
+			print("		Argument name:			", entry.name)
+			print("		Argument type:			", entry.datatype)
+			print("		Argument direction:		", entry.direction)
+			print("		Related State Variable:		", entry.related_State_Variable.strip())
+			print("")
+		print("\n")

@@ -1,4 +1,4 @@
-#! /usr/bin/env python 27
+#! /usr/bin/env python3
 from UPnP_State_Variable_Table import *
 
 class UPnP_Service:
@@ -80,17 +80,17 @@ class UPnP_Service:
 	def print_Service_Actions(self):
 		x = 1
 		for entry in self.actions:
-			print "		Action %s: 	%s" % (x, entry.name)
+			print("		Action %s: 	%s" % (x, entry.name))
 			#print "		Num. Arguments: ", entry.num_Arguments
 			#print "		Num. State Var: ", entry.num_State_Variables
 			#print ""
 			x += 1
 
 	def print_Service_Details(self):
-		print "		Service Name: 	", self.name
-		print "		Desc. URL:	", self.description_URL
-		print "		Control URL: 	", self.control_URL
-		print "		Eventing URL: 	", self.eventing_URL
-		print "		Actions: 	", self.num_Actions
-		print "		State Vars:	", self.num_State_Variables
-		print ""
+		print("		Service Name: 	", self.name)
+		print("		Desc. URL:	", self.description_URL)
+		print("		Control URL: 	", self.control_URL)
+		print("		Eventing URL: 	", self.eventing_URL)
+		print("		Actions: 	", self.num_Actions)
+		print("		State Vars:	", self.num_State_Variables)
+		print("")

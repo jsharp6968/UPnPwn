@@ -1,281 +1,245 @@
-#!/usr/bin/env python 37
+"""
+        UPnPwn is a client for manually interacting with UPnP servers and clients.
+        It supports SSDP, SCPD XML fetching and parsing, SOAP requests and (untested) GENA Eventing.
+        Some day, it'll break UPnP the way sqlmap breaks poorly sanitised SQL."""
+#!/usr/bin/env python3
+import re
+from ssdp_Discover import SSDP_Discover
+from scpd_Handler import read_SCPD_Root
+from UPnPwn_File_Handler import save_SOAP_Message
+from SOAP_Handler import SOAP_Handler
+from UPnP_Network_Impression import UPnPNetworkImpression
+from UPnPwn_Print_Manager import (action_menu_print, host_menu_print,
+                                  service_menu_print, list_hosts, device_menu_after_scpd_print,
+                                  device_menu_before_scpd_print, main_menu_print, do_pyfiglet)
+
 __author__ = "Jordan Sharp"
 __copyright__ = "Copyright 2018"
 __credits__ = ["Jordan Sharp"]
 __license__ = "GPL"
-__version__ = "0.4"
+__version__ = "Version 0.4"
 __maintainer__ = "Jordan Sharp"
 __email__ = "0xsee4@gmail.com"
 __status__ = "Alpha"
-__doc__ = "UPnPwn is a client for manually interacting with UPnP servers and clients. It supports SSDP, SCPD XML fetching, SOAP requests and (untested) GENA Eventing."
+TITLE_STRING = "        ####### UPnPwn %s #######" % __version__
 
-from ssdp_Discover import *
-from scpd_Handler import *
-from SOAP_Handler import *
-from dirtySOAP import *
-from UPnP_Attack_Dispatcher import *
-from requests.auth import HTTPDigestAuth
-import re
-import pyfiglet
-import urllib2
-import xml.etree.ElementTree as ET
-
-title_String = "		####### UPnPwn %s #######" % __version__
-
-block = "\n\n\n\n\n\n\n"
-
-main_Menu_String = """		Q | q | exit = Exit the program
-		S | s = Scan for SSDP-responding hosts and list them
-		H | h = Specify a host whose devices you want to explore\n"""
-
-host_Menu_String = """
-		D | d = Specify a device on this host whose services you want to explore
-		M | m = Return to the main menu\n"""
-
-service_Menu_String = """
-		L | l = List all actions defined by this service (already listed above, but this clears duplicates)
-		A | a = Specify an action to explore 
-		R | r = Return to the device menu\n"""
-
-device_Menu_Before_SCPD_String = """
-		The following service list was obtained from SSDP packets. This list may contain 
-		devices (lines beginning with 'uuid') alongside services. The interesting details of
-		UPnP services (such as action names, arguments etc) are obtained from SCPD files.
-		These have not yet been fetched, so we know very little right now.\n"""
-
-device_Menu_Options = """		L | l = List SSDP-discovered services (already listed above)
-		F | f = Fetch and parse all SCPD documents
-		R | r = Return to the Host menu\n"""
-
-device_Menu_After_SCPD_String = """
-		H | h = Hail-Mary Test - Send '$(poweroff)' to every action (loud/fun)  
-		L | l = List Services (already listed above)
-		S | s = Specify a service to interact with
-		R | r = Return to the Host menu\n"""
-
-action_Menu_String = """
-		A | a = List arguments of this action
-		H | h = Hail-Mary Test - Send '$(poweroff)' to every action (loud/fun)
-		S | s = List state variables for this action
-		C | c = Send SOAP commands to execute this action (fun)
-		R | r = Return to the Service menu\n"""
-
-def inputHandler(prompt):
-	prompt = "\n" + prompt
-	userSelection = raw_input(prompt)
-	userSelection = userSelection.upper()
-	if "Q" in userSelection or "EXIT" in userSelection:
-		print "Exiting UPnPwn."
-		exit()
-	return userSelection
-
-def explore_Action(device, this_Service, action_Name):
-	print block
-	this_Action = this_Service.get_Action_By_Name(action_Name)
-	action_Menu_Header = "\n\n		##### Action Menu for %s in %s on %s on %s at %s #####" % (this_Action.name, this_Service.name, device.device_InfoBundle.deviceType, device.device_InfoBundle.modelName, device.address)
-	print action_Menu_Header
-	print "		Which is an action of: 	", this_Service.name
-	print "		Living on host: 		", device.address
-	print "		Arguments:			", this_Action.num_Arguments
-	print "		State Variables:		", this_Action.num_State_Variables
-	this_Action.print_Action_Arguments()
-	print "\n", action_Menu_String
-	userSelection = ""
-	while "Q" not in userSelection:
-		userSelection = inputHandler("	Action: %s		Service: %s		On: %s@%s > " % (this_Action.name, this_Service.name, device.device_InfoBundle.deviceType, device.address))
-		if type(userSelection) != "String":
-			pass
-		if "A" in userSelection:
-			if len(this_Action.arguments) < 1:
-				print "		This action takes no arguments. As an action, it takes itself a bit seriously..."
-			else:
-				this_Action.print_Action_Arguments()
-			print action_Menu_String
-		elif "S" in userSelection:
-			if len(this_Action.state_Variable_Table.variables) == 0:
-				print "		(!) No state variables are listed for this action."
-			else:
-				this_Action.state_Variable_Table.print_State_Variables()
-		elif "C" in userSelection:
-			userSelection = inputHandler("		Save SOAP packet? y/n > ")
-			if "Y" in userSelection:
-				dontDropIt = SOAP_Handler(device.address)
-				dontDropIt.handle_Some_SOAP(device, this_Action, this_Service, "Clean")
-				dontDropIt.save_SOAP_Message(device, this_Action, this_Service)
-			else:
-				dontDropIt = SOAP_Handler(device.address)
-				dontDropIt.handle_Some_SOAP(device, this_Action, this_Service, "Clean")
-				#dontDropIt.handle_Clean_SOAP(device, this_Action, this_Service)
-		elif "R" in userSelection:
-			return 0
-		elif "H" in userSelection:
-			atk = UPnP_Attack_Dispatcher(device)
-			atk.hail_Mary_Simple_Test()
-
-def explore_Service(device, service_ID):
-	print block
-	this_Service = device.service_List[service_ID]
-	this_Service.name = this_Service.name.strip()
-	userSelection = ""
-	displayed_Action_Names = []
-	for entry in this_Service.actions:
-		displayed_Action_Names.append(entry.name)
-	service_Menu_Header =  "\n\n		####### Service Menu for %s on %s on %s at %s #######" % (this_Service.name, device.device_InfoBundle.deviceType, device.device_InfoBundle.modelName, device.address)
-	print service_Menu_Header
-	this_Service.print_Service_Details()
-	this_Service.print_Service_Actions()
-	this_Service.populate_Argument_Datatypes()
-	print service_Menu_String
-	while "Q" not in userSelection:
-		userSelection = inputHandler("		Service: %s	  On: %s@%s > " % (this_Service.name, device.device_InfoBundle.deviceType, device.address))
-		if type(userSelection) != 'str':
-			pass
-		if "H" in userSelection:
-			return 0
-		elif "M" in userSelection:
-			main_Menu()
-		elif "L" in userSelection:
-			this_Service.print_Service_Actions()
-			print service_Menu_String
-		elif "A" in userSelection:
-			if re.search('\d+', userSelection):
-				choiceList = re.findall(r'\d+', userSelection)
-				choice = int(choiceList[0])
-				explore_Action(device, this_Service, displayed_Action_Names[choice -1])
-				print service_Menu_Header
-				this_Service.print_Service_Details()
-				this_Service.print_Service_Actions()
-				print service_Menu_String
-			else:
-				userSelectionInt = int(raw_input("		Enter action ID > "))
-				explore_Action(device, this_Service, displayed_Action_Names[userSelectionInt - 1])
-				print service_Menu_Header
-				this_Service.print_Service_Details()
-				this_Service.print_Service_Actions()
-				print service_Menu_String
-		elif "R" in userSelection:
-			return 0
-
-def explore_Device(device):
-	print block
-	userSelection = ""
-	scpd_Has_Been_Fetched = device.scpd_Has_Been_Fetched
-	while "Q" not in userSelection:
-		if scpd_Has_Been_Fetched == True:
-			print block
-			print "		##### Device Menu for %s on %s at %s #####" % (device.device_InfoBundle.deviceType, device.device_InfoBundle.modelName, device.address)
-			device.device_InfoBundle.print_InfoBundle()
-			device.remove_Empty_Services()
-			device.gather_Device_Statistics()
-			device.print_Device_Statistics()
-			device.print_Device_Service_List()
-			print device_Menu_After_SCPD_String
-			userSelection = inputHandler("		%s@%s > " % (device.device_InfoBundle.deviceType, device.address))
-			if type(userSelection) != 'str':
-				pass
-			if "L" in userSelection:
-				device.print_Device_Service_List()
-			elif "S" in userSelection:
-				if device.num_Services == 1:
-					print "		Only 1 service detected, automatically selecting that one."
-					explore_Service(device, 0)
-					print device_Menu_After_SCPD_String
-				else:
-					if re.search('\d+', userSelection):
-						choiceList = re.findall(r'\d+', userSelection)
-						choice = int(choiceList[0])
-						explore_Service(device, choice -1)
-					else:
-						userSelectionInt = int(raw_input("		Enter Service ID > "))
-						explore_Service(device, userSelectionInt - 1)
-						print device_Menu_After_SCPD_String
-			elif "R" in userSelection:
-				return 0
-			elif "H" in userSelection:
-				hail_Mary_Simple_Flood(device)
-		else:
-			print "		####### Device Menu for Device-%s at %s #######" % (device.host_Index + 1, device.address)
-			print device_Menu_Before_SCPD_String
-			device.print_Device_SSDP_Service_List()
-			print device_Menu_Options
-			userSelection = inputHandler("		Device-%s@%s > " % (device.host_Index +1, device.address))
-			if "F" in userSelection:
-				device.scpd_Has_Been_Fetched = True
-				device = read_SCPD_Root(device)
-				print "		Fetched and parsed all SCPD documents!"
-				scpd_Has_Been_Fetched = True
-			elif "L" in userSelection:
-				device.print_Device_SSDP_Service_List()
-			elif "R" in userSelection:
-				return 0
-
-def explore_Host(host):
-	print block
-	userSelection = ""
-	print "\n\n		####### Host Menu for %s #######" % host.address
-	host.print_UPnP_Device_List()
-	print host_Menu_String
-	while "Q" not in userSelection:
-		userSelection = inputHandler("		%s > " % host.address)
-		if type(userSelection) != 'str':
-			pass
-		if "D" in userSelection:
-			if host.num_UPnP_Devices == 1:
-				print "		Only 1 device detected, automatically selecting that one."
-				device = host.UPnP_Devices_List[0]
-				explore_Device(device)
-			else:
-				userSelectionInt = int(raw_input("		Enter device index > "))
-				device = host.UPnP_Devices_List[userSelectionInt -1]
-				explore_Device(device)
-		elif "M" in userSelection:
-			return 0
-
-def list_Hosts(this_Network):
-	print block
-	x = 1
-	for host in this_Network.hosts_List:
-		print "		+++++ Host ", x, " +++++"
-		host.print_Basic_Host_Info()
-		print ""
-		for device in host.UPnP_Devices_List:
-			device.print_Basic_Device_Info()
-		print  "		+++++++++++++++++++\n"
-		x += 1
+def input_handler(prompt):
+    """Eats non-string input.
+    Casts everything to uppercase to dodge the problem
+    of case handling. This is lazy.
+    Checks every run for 'Q' or 'EXIT'."""
+    prompt = "\n" + prompt
+    user_selection = input(prompt + " > ")
 
 
-# - Instantiates a Network Impression.
-# - Iterates a query on a string for the presence of commands. Each command is one letter.
-# Does not allow multiple options, the first detected is selected. Capitalises to allow input
-# of either case.  
+    if isinstance(user_selection, str):
+        pass
 
-def main_Menu():
-	this_Network = UPnP_Network_Impression(0)
-	userSelection = ""
-	while "Q" not in userSelection:
-		userSelection = inputHandler("		UPnPwn > ")
-		if type(userSelection) != 'str':
-			pass
-		if "S" in userSelection:
-			this_Network = SSDP_Discover(this_Network)
-			list_Hosts(this_Network)
-			print main_Menu_String
-		elif "H" in userSelection:
-			if this_Network.num_Hosts == 1:
-				print "		Only 1 host detected, automatically selecting that one."
-				explore_Host(this_Network.hosts_List[0])
-			else:
-				userSelection = int(raw_input("		Enter host ID > "))
-				explore_Host(this_Network.hosts_List[userSelection - 1])
+    user_selection = user_selection.upper()
+
+    if "Q" in user_selection or "EXIT" in user_selection:
+        print("Exiting UPnPwn.")
+        exit()
+    return user_selection
+
+def explore_action(device, this_service, action_name):
+    """Call a given action on a given service within the appropriate device.
+    This is where the action happens... no pun intended.
+    It's where you'll spend most of your time when interacting with a new device.
+    As such it makes sense to add functionality to it.
+    """
+    this_action = this_service.get_Action_By_Name(action_name)
+    action_menu_print(device, this_service, this_action)
+    user_selection = ""
+    prompt = "  Action: %s      Service: %s     On: %s@%s" % (this_action.name,
+                                                              this_service.name,
+                                                              device.device_InfoBundle.deviceType,
+                                                              device.address)
+    while "Q" not in user_selection:
+        user_selection = input_handler(prompt)
+        print(isinstance(user_selection))
+        if isinstance(user_selection) != "String":
+            pass
+        if "A" in user_selection:
+            # Display the arguments of an action.
+            if this_action.arguments:
+                print("""     This action takes no arguments.
+                      As an action, it takes itself a bit seriously...""")
+            else:
+                this_action.print_Action_Arguments()
+            action_menu_print(device, this_service, this_action)
+        elif "S" in user_selection:
+            # Display the state variables referenced by an action.
+            if this_action.state_Variable_Table.variables:
+                print("     (!) No state variables are listed for this action.")
+            else:
+                this_action.state_Variable_Table.print_State_Variables()
+        elif "C" in user_selection:
+            # Send SOAP commands.
+            user_selection = input_handler("      Save SOAP packet? y/n")
+            dont_drop_it = SOAPHandler(device.address)
+            dont_drop_it.handle_Some_SOAP(device, this_action, this_service, "Clean")
+            if "Y" in user_selection:
+                save_SOAP_Message(device, this_action, this_service, dont_drop_it.SOAP_Message)
+            else:
+                pass
+        elif "R" in user_selection:
+            return 0
+
+def explore_service(device, service_id):
+    """Navigate a service on a given device."""
+    this_service = device.service_List[service_id]
+    displayed_action_names = []
+    for entry in this_service.actions:
+        displayed_action_names.append(entry.name)
+    service_menu_print(device, this_service)
+    prompt = "      Service: %s   On: %s@%s" % (this_service.name,
+                                                device.device_InfoBundle.deviceType,
+                                                device.address)
+    user_selection = ""
+    while "Q" not in user_selection:
+        user_selection = input_handler(prompt)
+        if isinstance(user_selection) != 'str':
+            # Eat non-string input.
+            pass
+        if "H" in user_selection:
+            # Return to Host menu.
+            return 0
+        if "M" in user_selection:
+            main_menu()
+        elif "L" in user_selection:
+            # List actions, print menu again.
+            this_service.print_Service_Actions()
+            service_menu_print(device, this_service)
+        elif "A" in user_selection:
+            # Select an action. I an int is entered after 'a' ie 'a3' then
+            # the corresponding action is selected, else you're prompted.
+            # Print the menu on return.
+            if re.search(r'\d+', user_selection):
+                choice_list = re.findall(r'\d+', user_selection)
+                choice = int(choice_list[0])
+                explore_action(device, this_service, displayed_action_names[choice -1])
+            else:
+                user_selection_int = int(input("      Enter action ID > "))
+                explore_action(device, this_service, displayed_action_names[user_selection_int - 1])
+            service_menu_print(device, this_service)
+        elif "R" in user_selection:
+            # Return to the device menu
+            return 0
+
+def explore_device_after_scpd(device):
+    """Allows you to choose a service to interact with, alongside
+    a list of information about the device like serial numbers, model
+    nummbers, firmware codes etc."""
+    device_menu_after_scpd_print(device)
+    prompt = "      %s@%s" % (device.device_InfoBundle.deviceType, device.address)
+    user_selection = input_handler(prompt)
+    if isinstance(user_selection) != 'str':
+        pass
+    if "L" in user_selection:
+        device.print_Device_Service_List()
+    elif "S" in user_selection:
+        if device.num_Services == 1:
+            print("     Only 1 service detected, automatically selecting that one.")
+            explore_service(device, 0)
+        else:
+            if re.search(r'\d+', user_selection):
+                choice_list = re.findall(r'\d+', user_selection)
+                choice = int(choice_list[0])
+                explore_service(device, choice -1)
+            else:
+                user_selection_int = int(input("      Enter Service ID > "))
+                explore_service(device, user_selection_int - 1)
+        device_menu_after_scpd_print(device)
+
+def explore_device(device):
+    """Offers the option of fetching SCPD documents, then
+    branches to method above, explore_device_after_scpd, whiich
+    has actual functions."""
+    user_selection = ""
+    scpd_has_been_fetched = device.scpd_has_been_fetched
+    while "Q" not in user_selection:
+        if scpd_has_been_fetched:
+            explore_device_after_scpd(device)
+        else:
+            device_menu_before_scpd_print(device)
+            prompt = "      Device-%s@%s" % (device.host_Index +1, device.address)
+            user_selection = input_handler(prompt)
+            if "F" in user_selection:
+                # Fetch SCPD documents.
+                device.scpd_has_been_fetched = True
+                device = read_SCPD_Root(device)
+                print("     Fetched and parsed all SCPD documents!")
+                scpd_has_been_fetched = True
+            elif "L" in user_selection:
+                device.print_Device_SSDP_Service_List()
+            elif "R" in user_selection:
+                return 0
+
+def explore_host(host):
+    """Eats non-strings, loops input same as main_menu.
+    -  D is for selecting a device, return to the main menu"""
+    host_menu_print(host)
+    user_selection = ""
+    while "Q" not in user_selection:
+        user_selection = input_handler("      %s" % host.address)
+        if isinstance(user_selection) != 'str':
+            pass
+        if "D" in user_selection:
+            if host.num_UPnP_Devices == 1:
+                print("     Only 1 device detected, automatically selecting that one.")
+                device = host.UPnP_Devices_List[0]
+                explore_device(device)
+            else:
+                user_selection_int = int(input("      Enter device index > "))
+                device = host.UPnP_Devices_List[user_selection_int -1]
+                explore_device(device)
+            host_menu_print(host)
+        elif "M" in user_selection:
+            return 0
+
+def main_menu():
+    """Creates a blank Network Impression object with id of 0. This is the network.
+    Infinitely loops on input until q or exit are detected, case insensitive.
+    - Iterates a query on a string for the presence of commands
+    - Each command is one letter
+    - Does not allow multiple options, the first detected is selected
+    - Eats non-strings
+    """
+    main_menu_print()
+    # - Instantiates a Network Impression.
+    this_network = UPnP_Network_Impression(0)
+    user_selection = ""
+    while "Q" not in user_selection:
+        # - Iterates a query on a string for the presence of commands. Each command is one letter.
+        # Does not allow multiple options, the first detected is selected. Eats non-strings.
+        user_selection = input_handler("      UPnPwn")
+        if isinstance(user_selection, str):
+            pass
+        if "S" in user_selection:
+            # Re-uses this_network so it gets wiped each scan.
+            this_network = SSDP_Discover(this_network)
+            list_Hosts(this_network)
+            main_menu_print()
+        elif "H" in user_selection:
+            if this_network.num_Hosts == 1:
+                print("     Only 1 host detected, automatically selecting that one.")
+                explore_host(this_network.hosts_List[0])
+            else:
+                user_selection = int(input("        Enter host ID"))
+                explore_host(this_network.hosts_List[user_selection - 1])
 
 def main():
-	print __doc__
-	print __email__
-	print __author__
-	print "\n\n"
-	print title_String
-	print main_Menu_String
-	main_Menu()
+    """Prints info and goes into main_menu, which loops. Zero Input."""
+    print(__doc__)
+    print("\n\n")
+    do_pyfiglet("UPnPwn")
+    print("\n\n")
+    print("        " + __version__)
+    print("        " + __email__)
+    print("        " + __author__)
+    print("\n\n")
+    main_menu()
 
 if __name__ == '__main__':
-	main()
+    main()

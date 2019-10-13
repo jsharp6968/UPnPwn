@@ -1,4 +1,4 @@
-#! /usr/bin/env python 37
+#! /usr/bin/env python3
 
 class UPnP_SSDP_Bundle:
 	def __init__(self, USN, ST, Location, Server):

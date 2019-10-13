@@ -1,6 +1,5 @@
-#! /usr/bin/env python 27
+#! /usr/bin/env python3
 from socket import *
-import sys
 
 ### Example subscription packet
 # SUBSCRIBE publisher path HTTP/1.1
@@ -72,7 +71,7 @@ class GENA_Handler:
 		#eventing_Socket = socket(AF_INET, SOCK_STREAM)
 		#listening_Socket = socket(AF_INET, SOCK_STREAM)
 		#eventing_Socket.settimeout(5)
-		print self.eventing_Packet
+		print(self.eventing_Packet)
 		#eventing_Socket.sendto(self.eventing_Packet, (self.address, self.eventing_Port))
 		#eventing_Socket = socket(AF_INET, SOCK_STREAM)
 		#eventing_Socket.bind(('0.0.0.0', 34215))
@@ -86,12 +85,12 @@ class GENA_Handler:
 				eventing_Socket.connect(("192.168.1.1", 80))
 				eventing_Socket.send(self.eventing_Packet)
 				data, addr = eventing_Socket.recvfrom(1500)
-				print data
+				print(data)
 				break
 				#eventing_Socket.close()
 			except timeout:
 				#eventing_Socket.close()
-				print "Timed out."
+				print("Timed out.")
 				break
 		#listening_Socket.bind((gethostname(), 38215))
 		#data, addr = listening_Socket.recvfrom(1500)

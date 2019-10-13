@@ -1,4 +1,4 @@
-#! /usr/bin/env python 37
+#! /usr/bin/env python3
 
 class UPnP_Action_Argument():
 	def __init__(self, name):

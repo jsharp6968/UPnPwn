@@ -1,6 +1,6 @@
-#! /usr/bin/env python 37
+#! /usr/bin/env python3
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import xml.etree.ElementTree as ET
 from UPnP_Action import *
 from UPnP_Service import *
@@ -8,18 +8,15 @@ from UPnP_State_Variable import *
 from UPnP_State_Variable_Table import *
 from UPnP_Action_Argument import *
 from UPnP_Device_InfoBundle import *
-
-def save_Local_SCPD_File(scpd_File_Name, scpd_File_Data):
-	with open(scpd_File_Name, 'w') as file:
-		file.write(scpd_File_Data)
+from UPnPwn_File_Handler import *
 
 def fetch_SCPD_File_Contents(URL):
 	scpd_File_Data = ""
 	try:
-		scpd_File_Data = urllib2.urlopen(URL).read()
+		scpd_File_Data = urllib.request.urlopen(URL).read()
 	except:
-		scpd_File_Data = urllib2.urlopen(URL + ".xml").read()
-		print "		Nope, it was " + URL + ".xml !"
+		scpd_File_Data = urllib.request.urlopen(URL + ".xml").read()
+		print("		Nope, it was " + URL + ".xml !")
 	return scpd_File_Data
 
 def store_SCPD_Info(address, device):
@@ -33,12 +30,6 @@ def store_SCPD_Info(address, device):
 	device.presentationURL = presentationURL
 	device.device_Actions_Dictionary = device_Actions_Dictionary
 	return device
-
-def save_SCPD_Root(location):
-	scpd_File_Data = fetch_SCPD_File_Contents(location)
-	scpd_File_Name = ''.join(e for e in location if e.isalnum())
-	save_Local_SCPD_File(scpd_File_Name, scpd_File_Data)
-	parse_Root_SCPD_XML(scpd_File_Data)
 
 def get_Presentation_URL(location):
 	global presentationURL
@@ -57,7 +48,7 @@ def get_Presentation_Port(rootURL):
 			presentation_port = int(port_As_String)
 			#print "		Presentation port: ",  presentation_port
 		except:
-			print "{!} No port found in root description URL. Assuming presentation_port is 80 (it probably isn't)"
+			print("{!} No port found in root description URL. Assuming presentation_port is 80 (it probably isn't)")
 			presentation_port = 80
 		return presentation_port
 	else:
@@ -69,30 +60,30 @@ def get_Presentation_Port(rootURL):
 			presentation_port = int(port_As_String)
 			#print "		Presentation port: ",  presentation_port
 		except:
-			print "{!} No port found in root description URL. Assuming presentation_port is 80 (it probably isn't)"
+			print("{!} No port found in root description URL. Assuming presentation_port is 80 (it probably isn't)")
 			presentation_port = 80
 		return presentation_port
 
 def read_SCPD_Root(device):
 	location = device.root_XML_Location.strip()
-	print "		Reading this device's root XML description document from: ", location
+	print("		Reading this device's root XML description document from: ", location)
 	device.presentation_URL = get_Presentation_URL(location)
-	print "		Using presentation_URL: ", device.presentation_URL
+	print("		Using presentation_URL: ", device.presentation_URL)
 	device.presentation_Port = get_Presentation_Port(location)
-	print "		Using presentation port: ", device.presentation_Port
-	scpd_File_Data = urllib2.urlopen(location).read()
-	print "		Read URL successfully!"
+	print("		Using presentation port: ", device.presentation_Port)
+	scpd_File_Data = urllib.request.urlopen(location).read()
+	print("		Read URL successfully!")
 	prompt = "		Save this root description document locally? Y/N > "
 	prompt = "\n" + prompt
-	userSelection = raw_input(prompt)
+	userSelection = input(prompt)
 	if userSelection.upper() == "Y":
 		scpd_File_Name = ''.join(e for e in location if e.isalnum())
-		save_Local_SCPD_File(scpd_File_Name, scpd_File_Data)
+		save_File(scpd_File_Name, scpd_File_Data)
 	device = parse_Root_SCPD_XML(scpd_File_Data, device)
 	device.purge_Service_Repetitions()
 	device.remove_Empty_Services()
-	print "		Parsed root XML..."
-	print "		Stored SCPD info..."
+	print("		Parsed root XML...")
+	print("		Stored SCPD info...")
 	return device
 
 	#print "		You may have encountered a machine running a direct pairing service... uTorrent does this."
@@ -117,7 +108,7 @@ def update_A_Service(device, this_Service):
 	x = 0
 	for service in device.service_List:
 		if service.ST.upper().strip() == this_Service.ST.upper().strip():
-			#print "		Updating a service: ", this_Service.ST
+			print ("		Updating a service: ", this_Service.ST)
 			device.service_List[x] = this_Service
 			break
 		x += 1
@@ -127,7 +118,7 @@ def add_A_Service(device, this_Service):
 	x = 0
 	for service in device.device_SSDP_Services_List:
 		if service.ST.upper().strip() == this_Service.ST.upper().strip():
-			print "		Adding a service: ", this_Service.ST
+			print("		Adding a service: ", this_Service.ST)
 			device.add_Service(this_Service)
 			break
 		x += 1
@@ -138,12 +129,12 @@ def check_Element_For_Services(element):
 	element_Tag_As_String = str(element.tag).upper()
 	if element_Tag_As_String.endswith("SERVICE"):
 		for l2 in element:
-			print l2.text
-			print l2.tag
-			print 2
+			print(l2.text)
+			print(l2.tag)
+			print(2)
 			if l2.tag.upper().endswith("SCPDURL"):
-				print "We found a description document!"
-				print l2.tag.upper()
+				print("We found a description document!")
+				print(l2.tag.upper())
 				this_Service.description_URL = l2.text
 			elif l2.tag.upper().endswith("CONTROLURL"):
 				this_Service.control_URL = l2.text
@@ -178,34 +169,34 @@ def check_Element_For_Device_InfoBundle(element, this_Device_InfoBundle):
 				deviceType = deviceType.replace(":1", "")
 				this_Device_InfoBundle.deviceType = deviceType
 				filledFields += 1
-			if subElement.tag.upper().endswith("FRIENDLYNAME"):
+			elif subElement.tag.upper().endswith("FRIENDLYNAME"):
 				this_Device_InfoBundle.friendlyName = subElement.text
 				filledFields += 1
-			if subElement.tag.upper().endswith("MANUFACTURER"):
+			elif subElement.tag.upper().endswith("MANUFACTURER"):
 				this_Device_InfoBundle.manufacturer = subElement.text
 				filledFields += 1
-			if subElement.tag.upper().endswith("MANUFACTURERURL"):
+			elif subElement.tag.upper().endswith("MANUFACTURERURL"):
 				this_Device_InfoBundle.manufacturerURL = subElement.text
 				filledFields += 1
-			if subElement.tag.upper().endswith("MODELDESCRIPTION"):
+			elif subElement.tag.upper().endswith("MODELDESCRIPTION"):
 				this_Device_InfoBundle.modelDescription = subElement.text
 				filledFields += 1
-			if subElement.tag.upper().endswith("MODELNAME"):
+			elif subElement.tag.upper().endswith("MODELNAME"):
 				this_Device_InfoBundle.modelName = subElement.text
 				filledFields += 1
-			if subElement.tag.upper().endswith("MODELNUMBER"):
+			elif subElement.tag.upper().endswith("MODELNUMBER"):
 				this_Device_InfoBundle.modelNumber = subElement.text
 				filledFields += 1
-			if subElement.tag.upper().endswith("MODELURL"):
+			elif subElement.tag.upper().endswith("MODELURL"):
 				this_Device_InfoBundle.modelURL = subElement.text
 				filledFields += 1
-			if subElement.tag.upper().endswith("SERIALNUMBER"):
+			elif subElement.tag.upper().endswith("SERIALNUMBER"):
 				this_Device_InfoBundle.serialNumber = subElement.text
 				filledFields += 1
-			if subElement.tag.upper().endswith("UDN"):
+			elif subElement.tag.upper().endswith("UDN"):
 				this_Device_InfoBundle.UDN = subElement.text
 				filledFields += 1
-			if subElement.tag.upper().endswith("UPC"):
+			elif subElement.tag.upper().endswith("UPC"):
 				this_Device_InfoBundle.UPC = subElement.text
 				filledFields += 1
 	this_Device_InfoBundle.filledFields = filledFields
@@ -243,10 +234,10 @@ def parse_Root_SCPD_XML(scpd_File_Data, device):
 								this_Service = check_Element_For_Services(l7)
 								if this_Service.name != "NULL":
 									device = add_A_Service(device, this_Service)
-	print "		Set all root-XML-derived lists..."
-	print "		The current device has the following number of Services: ", len(device.service_List)
+	print("		Set all root-XML-derived lists...")
+	print("		The current device has the following number of Services: ", len(device.service_List))
 	device.refresh_Description_URLs()
-	print "		We are handling: ", len(device.scpd_URL_List), " description document(s)."
+	print("		We are handling: ", len(device.scpd_URL_List), " description document(s).")
 	device = fetch_Service_Description_Documents(device.scpd_URL_List, device)
 	return device
 
@@ -275,22 +266,22 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
 		if description_Full_URL.strip().endswith(this_Service.description_URL.strip()):
 			current_Service = this_Service
 			break
-	print "		Currently parsing details for service: ", current_Service.name
+	print("		Currently parsing details for service: ", current_Service.name)
 	root = ET.fromstring(description_File_Contents)
 	for l1 in root:
 		this_Tag1 = l1.tag.upper()
 		if this_Tag1.endswith("SERVICESTATETABLE"):
-			print "		Found the service's state table."
+			print("		Found the service's state table.")
 			for l2 in l1:
 				this_State_Variable_Table = current_Service.state_Variable_Table
 				this_State_Variable = UPnP_State_Variable(l2[0].text.strip(), l2[1].text.strip(), l2.attrib)
-				print "		Adding a state variable named", l2[0].text.strip(), "to current service, dataType: ", l2[1].text.strip()
+				print("		Adding a state variable named", l2[0].text.strip(), "to current service, dataType: ", l2[1].text.strip())
 				this_State_Variable_Table.add_State_Variable(this_State_Variable)
 				current_Service.state_Variable_Table = this_State_Variable_Table
 				current_Service.num_State_Variables = len(this_State_Variable_Table.variables)
 				device = update_A_Service(device, current_Service)
 				device.gather_Device_Statistics()
-				print "		This service now has ", current_Service.num_State_Variables, " state variable(s) associated with it."
+				print("		This service now has ", current_Service.num_State_Variables, " state variable(s) associated with it.")
 		for l2 in l1:
 			this_Action = UPnP_Action(l2.text.strip())
 			thisTag = str(l2.tag).upper()
@@ -318,20 +309,20 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
 							device = update_A_Service(device, current_Service)
 							#print "Successfully updated this service!"
 				except:
-					print "		Exception handling an argument list..."
+					print("		Exception handling an argument list...")
 				device = update_A_Service(device, current_Service)
-	print "		Parsed through a description document..."
+	print("		Parsed through a description document...")
 	return device
 
 def save_SCPD_Description_Document(description_Full_URL):
 	description_Filename = ''.join(e for e in description_Full_URL if e.isalnum())
 	description_File_Contents = fetch_SCPD_File_Contents(description_Full_URL)
-	save_Local_SCPD_File(description_Filename, description_File_Contents)
+	save_File(description_Filename, description_File_Contents)
 
 def read_SCPD_Description_Document(description_Full_URL, device):
-	print "		Fetching: ", description_Full_URL
+	print("		Fetching: ", description_Full_URL)
 	description_File_Contents = fetch_SCPD_File_Contents(description_Full_URL)
-	print "		Fetched a description document..."
+	print("		Fetched a description document...")
 	device = parse_SCPD_Description_Document(description_File_Contents, description_Full_URL, device)
 	return device
 
@@ -340,6 +331,6 @@ def fetch_Service_Description_Documents(description_Document_Relative_Paths_List
 		description_Full_URL = ""
 		description_Full_URL = device.presentation_URL + ":" + str(device.presentation_Port) + "/" + description_Document_Relative_Path
 		description_Full_URL = description_Full_URL.strip()
-		print "		Trying this URL: ", description_Full_URL
+		print("		Trying this URL: ", description_Full_URL)
 		device = read_SCPD_Description_Document(description_Full_URL, device)
 	return device

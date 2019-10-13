@@ -1,4 +1,4 @@
-#! /usr/bin/env python 37
+#! /usr/bin/env python3
 
 class UPnP_Device_InfoBundle:
 	def __init__(self, sourceDocumentURL):
@@ -18,15 +18,15 @@ class UPnP_Device_InfoBundle:
 		self.filledFields = 0
 
 	def print_InfoBundle(self):
-		print "		Root XML Document:	", self.sourceDocumentURL
-		print "		Device Type:		", self.deviceType
-		print "		Friendly Name:		", self.friendlyName
-		print "		Manufacturer:		", self.manufacturer
-		print "		Manufacturer URL:	", self.manufacturerURL
-		print "		Model Description:	", self.modelDescription
-		print "		Model Name:		", self.modelName
-		print "		Model Number:		", self.modelNumber
-		print "		Model URL:		", self.modelURL
-		print "		Serial Number:		", self.serialNumber
-		print "		UDN:			", self.UDN
-		print "		UPC:			", self.UPC
+		print("		Root XML Document:	", self.sourceDocumentURL)
+		print("		Device Type:		", self.deviceType)
+		print("		Friendly Name:		", self.friendlyName)
+		print("		Manufacturer:		", self.manufacturer)
+		print("		Manufacturer URL:	", self.manufacturerURL)
+		print("		Model Description:	", self.modelDescription)
+		print("		Model Name:		", self.modelName)
+		print("		Model Number:		", self.modelNumber)
+		print("		Model URL:		", self.modelURL)
+		print("		Serial Number:		", self.serialNumber)
+		print("		UDN:			", self.UDN)
+		print("		UPC:			", self.UPC)

@@ -1,6 +1,7 @@
-#! /usr/bin/env python 27
+#! /usr/bin/env python3
 
-from upnp_Device import *
+# This class defines a UPnP device object, which lives inside a Host object,
+# and contains a list of Service objects.
 
 class UPnP_Host:
 	def __init__(self, address):
@@ -20,10 +21,11 @@ class UPnP_Host:
 		self.presentation_URL = presentation_URL
 
 	def print_UPnP_Device_List(self):
-		print "		The following %s UPnP root devices live on %s:\n" % (self.num_UPnP_Devices, self.address)
+		print("		The following %s UPnP root devices live on %s:\n" % (self.num_UPnP_Devices, 
+			self.address))
 		for device in self.UPnP_Devices_List:
 			device.print_Basic_Device_Info()
 
 	def print_Basic_Host_Info(self):
-		print "		Address: ", self.address
-		print "		Devices: ", self.num_UPnP_Devices
+		print("		Address: ", self.address)
+		print("		Devices: ", self.num_UPnP_Devices)

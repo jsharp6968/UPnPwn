@@ -1,4 +1,4 @@
-#! /usr/bin/env python 27
+#! /usr/bin/env python3
 from GENA_Handler import *
 
 t = GENA_Handler("192.168.1.254", 37215)

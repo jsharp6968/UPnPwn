@@ -1,4 +1,4 @@
-#! /usr/bin/env python 37
+#! /usr/bin/env python3
 
 from SOAP_Handler import *
 
@@ -54,8 +54,8 @@ class dirtySOAP_Handler(SOAP_Handler):
 				elif entry.datatype.upper().endswith("UI4"):
 					commmand = "-1"
 				else:
-					print "(!) No matches on the datatype... ", entry.datatype
-					print "Name: ", entry.name
+					print("(!) No matches on the datatype... ", entry.datatype)
+					print("Name: ", entry.name)
 					command = "1"
 				argument_Opener = "<" + entry.name + ">"
 				argument_Opener += str(command)
@@ -80,21 +80,21 @@ class dirtySOAP_Handler(SOAP_Handler):
 		these_Status_Codes = set()
 		self.prepare_Dirty_SOAP(device, this_Action, this_Service)
 		self.make_Dirty_Packet(dirt, this_Action.arguments)
-		print self.num_Arguments_Out, " < Num arguments out"
+		print(self.num_Arguments_Out, " < Num arguments out")
 		self.compile_SOAP_Message()
 		try:
 			reply = self.send_SOAP_Message()
 			SOAP_Responses = self.parse_SOAP_Response(reply)
-			print reply.text
-			print "Got SOAP Responses"
+			print(reply.text)
+			print("Got SOAP Responses")
 			for entry in SOAP_Responses:
 				these_Status_Codes.add(reply.status_code)
-				print reply.status_code
+				print(reply.status_code)
 			#	for variable in this_Service.state_Variable_Table.variables:
 			#		if entry.key == variable.name:
 			#			variable.value = entry.value
 		except:
-			print "		Error during SOAP transaction. Check network."
+			print("		Error during SOAP transaction. Check network.")
 		return these_Status_Codes
 
 	def do_Portmapping_Flood(self):
@@ -112,8 +112,8 @@ class dirtySOAP_Handler(SOAP_Handler):
 			SOAP_Message = SOAP_Message.replace(str(x), str(x+1))
 			x +=1
 			y +=1
-			print "Sent a portmapping request."
-			print SOAP_Message
+			print("Sent a portmapping request.")
+			print(SOAP_Message)
 			status = str(reply.status_code)
-		print "Finished loop"
-		print reply.text
+		print("Finished loop")
+		print(reply.text)

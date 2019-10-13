@@ -1,4 +1,4 @@
-#! /usr/bin/env python 37
+#! /usr/bin/env python3
 
 class UPnP_State_Variable:
 	def __init__(self, name, datatype, is_Eventing):

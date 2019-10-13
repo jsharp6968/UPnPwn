@@ -1,4 +1,4 @@
-#! /usr/bin/env python 37
+#! /usr/bin/env python3
 
 class UPnP_State_Variable_Table:
 	def __init__(self, name):
@@ -11,10 +11,10 @@ class UPnP_State_Variable_Table:
 		self.num_Variables = len(self.variables)
 
 	def print_State_Variables(self):
-		print ""
+		print("")
 		for variable in self.variables:
-			print "		Name: 	", variable.name
-			print "		Datatype:	", variable.datatype
-			print "		Is eventing:	", variable.is_Eventing
-			print "		Value:		", variable.value, "\n"
-		print ""
+			print("		Name: 	", variable.name)
+			print("		Datatype:	", variable.datatype)
+			print("		Is eventing:	", variable.is_Eventing)
+			print("		Value:		", variable.value, "\n")
+		print("")

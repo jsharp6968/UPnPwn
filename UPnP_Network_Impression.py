@@ -1,38 +1,54 @@
-#! /usr/bin/env python 37
-
+"""This module defines the UPnPNetworkImpression class."""
+#! /usr/bin/env python3
 import datetime
+from upnp_Host import UPnP_Host
 
-class UPnP_Network_Impression:
-	def __init__(self, ID):
-		self.ID = ID
-		self.timestamp = str(datetime.datetime.now())
-		self.num_Hosts = 0
-		self.address_List = []
-		self.ports_List = []
-		self.hosts_List = []
+class UPnPNetworkImpression:
+    """Stores a snapshot, or impression, of the LAN with respect to UPnP traffic. This is the core
+    object of the program; all host, device, service and action objects live inside."""
+    def __init__(self, impression_id):
+        self.impression_id = impression_id
+        self.timestamp = str(datetime.datetime.now())
+        self.ssdp_bundle = []
+        self.num_hosts = 0
+        self.address_list = []
+        self.ports_list = []
+        self.hosts_list = []
 
-	def add_Host(self, host):
-		host.ID = self.num_Hosts
-		self.hosts_List.append(host)
-		self.num_Hosts += 1
+    def add_host(self, host):
+        """Add a host to the network."""
+        host.impression_id = self.num_hosts
+        self.hosts_list.append(host)
+        self.num_hosts += 1
+        return "Added a host."
 
-	def purge_Host_By_ID(self, ID):
-		for host in self.hosts_List:
-			if ID == host.ID:
-				self.hosts_List.remove(host)
+    def purge_host_by_impression_id(self, impression_id):
+        """Remove a host from the network, one-shot."""
+        for host in self.hosts_list:
+            if impression_id == host.impression_id:
+                self.hosts_list.remove(host)
+                break
+        return "Removed host."
 
-	def get_Host_By_ID(self, ID):
-		for host in self.hosts_List:
-			if ID == host.ID:
-				return host
+    def get_host_by_impression_id(self, impression_id):
+        """Retrieve a host by impression_id."""
+        output_host = UPnP_Host(0)
+        for host in self.hosts_list:
+            if impression_id == host.impression_id:
+                output_host = host
+                break
+        return output_host
 
-	def update_Host_By_ID(self, ID, host_Incoming):
-		for host in self.hosts_List:
-			if ID == host.ID:
-				host = host_Incoming
+    def update_Host_By_impression_id(self, impression_id, host_incoming):
+        """Update a host with given impression_id."""
+        for host in self.hosts_list:
+            if impression_id == host.impression_id:
+                host = host_incoming
+                return "Host updated."
 
-	def get_Host_By_Address(self, address):
-		for host in self.hosts_List:
-			if address == host.address:
-				return host
-		return "NOT FOUND"
+    def get_host_by_address(self, address):
+        """Retrieve a host with given LAN address."""
+        for host in self.hosts_list:
+            if address == host.address:
+                return host
+        return "NOT FOUND"
