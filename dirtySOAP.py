@@ -7,10 +7,10 @@ class dirtySOAP_Handler(SOAP_Handler):
 		SOAP_Handler.__init__(self, address_String)
 
 	def add_Linux_Command(self, command):
-		self.command_Linux = command
+		self.command_linux = command
 
 	def make_Dirty_Packet(self, dirt, arguments_List):
-		arguments_Body = ""
+		arguments_body = ""
 		num_Arguments_Out = 0
 		arguments_Out_List = []
 		for entry in arguments_List:
@@ -25,14 +25,14 @@ class dirtySOAP_Handler(SOAP_Handler):
 				argument_Opener = "<" + entry.name + ">"
 				argument_Opener += dirt
 				argument_Closer = "</" + entry.name + ">"
-			arguments_Body += argument_Opener
-			arguments_Body += argument_Closer
-		self.arguments_Body = arguments_Body
+			arguments_body += argument_Opener
+			arguments_body += argument_Closer
+		self.arguments_body = arguments_body
 		self.num_Arguments_Out = num_Arguments_Out
 		self.arguments_Out_List = arguments_Out_List
 
 	def make_Auto_Packet(self, arguments_List):
-		arguments_Body = ""
+		arguments_body = ""
 		command = ""
 		num_Arguments_Out = 0
 		arguments_Out_List = []
@@ -60,26 +60,26 @@ class dirtySOAP_Handler(SOAP_Handler):
 				argument_Opener = "<" + entry.name + ">"
 				argument_Opener += str(command)
 				argument_Closer = "</" + entry.name + ">"
-			arguments_Body += argument_Opener
-			arguments_Body += argument_Closer
-		self.arguments_Body = arguments_Body
+			arguments_body += argument_Opener
+			arguments_body += argument_Closer
+		self.arguments_body = arguments_body
 		self.num_Arguments_Out = num_Arguments_Out
 		self.arguments_Out_List = arguments_Out_List
 
-	def prepare_Dirty_SOAP(self, device, this_Action, this_Service, dirt):
-		self.set_Action_Tag_Opener(this_Action.name, this_Service.name)
-		self.set_Action_Tag_Closer(this_Action.name)
-		self.make_Dirty_Packet(dirt, this_Action.arguments_List)
-		self.set_Control_URL(this_Service.control_URL)
-		self.set_Control_Port(device.presentation_Port)
+	def prepare_Dirty_SOAP(self, device, this_action, this_Service, dirt):
+		self.set_Action_Tag_Opener(this_action.name, this_Service.name)
+		self.set_Action_Tag_Closer(this_action.name)
+		self.make_Dirty_Packet(dirt, this_action.arguments_List)
+		self.set_Control_URL(this_Service.control_url)
+		self.set_Control_Port(device.presentation_port)
 		self.set_SOAP_Destination()
 		self.compile_SOAP_Message()
 		
 
-	def handle_Dirty_SOAP(self, device, this_Action, this_Service, dirt):
+	def handle_Dirty_SOAP(self, device, this_action, this_Service, dirt):
 		these_Status_Codes = set()
-		self.prepare_Dirty_SOAP(device, this_Action, this_Service)
-		self.make_Dirty_Packet(dirt, this_Action.arguments)
+		self.prepare_Dirty_SOAP(device, this_action, this_Service)
+		self.make_Dirty_Packet(dirt, this_action.arguments)
 		print(self.num_Arguments_Out, " < Num arguments out")
 		self.compile_SOAP_Message()
 		try:
@@ -90,7 +90,7 @@ class dirtySOAP_Handler(SOAP_Handler):
 			for entry in SOAP_Responses:
 				these_Status_Codes.add(reply.status_code)
 				print(reply.status_code)
-			#	for variable in this_Service.state_Variable_Table.variables:
+			#	for variable in this_Service.state_variable_table.variables:
 			#		if entry.key == variable.name:
 			#			variable.value = entry.value
 		except:

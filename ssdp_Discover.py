@@ -2,7 +2,7 @@
 #! /usr/bin/env python3
 from upnp_Device import UPnP_Device
 from upnp_Host import UPnP_Host
-from UPnP_Network_Impression import UPnP_Network_Impression
+from UPnP_Network_Impression import UPnPNetworkImpression
 from UPnP_Service import UPnP_Service
 from UPnPwn_Print_Manager import do_pyfiglet
 from SSDP_Extractor import extract_SSDP_Bundle
@@ -21,8 +21,8 @@ def found_new_host(this_network, this_ssdp_bundle, address):
     this_device.root_XML_Location = this_ssdp_bundle.Location
     this_host.add_UPnP_Device(this_device)
 
-    this_network.add_Host(this_host)
-    print("     Found a new host!")
+    this_network.add_host(this_host)
+    print("        Found a new host: %s" % this_host.address)
     return this_network
 
 def found_new_device(this_network, this_host, this_ssdp_bundle, address):
@@ -38,7 +38,7 @@ def found_new_device(this_network, this_host, this_ssdp_bundle, address):
     this_host.UPnP_Root_XML_Locations.append(this_ssdp_bundle.Location)
     this_host.add_UPnP_Device(this_device)
 
-    this_network.update_Host_By_ID(this_host.ID, this_host)
+    this_network.update_host_by_impression_id(this_host.impression_id, this_host)
     return this_network
 
 def found_new_service(this_network, this_host, this_ssdp_bundle, index):
@@ -48,10 +48,10 @@ def found_new_service(this_network, this_host, this_ssdp_bundle, index):
     this_service.set_Description_URL(this_ssdp_bundle.Location)
     this_service.set_ST(this_ssdp_bundle.ST)
 
-    this_device = this_host.UPnP_Devices_List[index]
+    this_device = this_host.upnp_devices_list[index]
     this_device.device_SSDP_Services_List.append(this_service)
 
-    this_network.update_Host_By_ID(this_host.ID, this_host)
+    this_network.update_host_by_impression_id(this_host.impression_id, this_host)
     return this_network
 
 def populate_network_impression(ssdp_packets, this_network):
@@ -60,12 +60,12 @@ def populate_network_impression(ssdp_packets, this_network):
         address = packet[0]
         data = packet[1]
         this_ssdp_bundle = extract_SSDP_Bundle(data)
-        if this_network.get_Host_By_Address(address) == "NOT FOUND":
+        if this_network.get_host_by_address(address) == "NOT FOUND":
             # Found a new host on the network.
             this_network = found_new_host(this_network, this_ssdp_bundle, address)
         else:
             # Known host.
-            this_host = this_network.get_Host_By_Address(address)
+            this_host = this_network.get_host_by_address(address)
             if this_ssdp_bundle.Location not in this_host.UPnP_Root_XML_Locations:
                 # Found a new UPnP device on a known host.
                 this_network = found_new_device(this_network, this_host,
@@ -84,15 +84,15 @@ def ssdp_discover(this_network):
     Perfoms an SSDP discovery session as defined in the UPnP standard; sends a broadcast UDP packet
     to port 1900. All responding hosts will send one packet for each root device, as well as one
     packet for each service hosted, via unicast traffic."""
-    this_network = UPnP_Network_Impression(-1)
+    this_network = UPnPNetworkImpression(-1)
     ssdp_responses = []
 
     this_network = send_discovery_packet_store_responses(this_network)
-    if not this_network.address_List:
+    if not this_network.address_list:
         # Nothing to Pwn.
         do_pyfiglet("Nothing   to  Pwn")
     else:
         # Set the ID to a sane value and return the network.
         this_network.ID = 0
-        this_network = populate_network_impression(ssdp_responses, this_network)
+        this_network = populate_network_impression(this_network.ssdp_bundle, this_network)
     return this_network

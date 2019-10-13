@@ -3,7 +3,7 @@ import requests
 from requests.auth import HTTPDigestAuth
 import xml.etree.ElementTree as ET
 
-class SOAP_Dispatcher(SOAP_Handler):
+class SOAP_Dispatcher:
 	def __init__(self, address):
 		self.address = address
 

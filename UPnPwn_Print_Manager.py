@@ -45,13 +45,13 @@ def action_menu_print(device, this_service, this_action):
     device object, containing services. Calls UPnP_Action object methods, which may change."""
     print(BLOCK)
     action_menu_header = "\n\n      ##### Action Menu for %s in %s on %s on %s at %s #####" % (
-        this_action.name, this_service.name, device.device_InfoBundle.deviceType,
-        device.device_InfoBundle.modelName, device.address)
+        this_action.name, this_service.name, device.device_infoBundle.deviceType,
+        device.device_infoBundle.model_name, device.address)
     print(action_menu_header)
     print("     Which is an action of:  ", this_service.name)
     print("     Living on host:         ", device.address)
-    print("     Arguments:          ", this_action.num_Arguments)
-    print("     State Variables:        ", this_action.num_State_Variables)
+    print("     Arguments:          ", this_action.num_arguments)
+    print("     State Variables:        ", this_action.num_state_variables)
     this_action.print_Action_Arguments()
     print("\n", ACTION_MENU_STRING)
 
@@ -61,7 +61,7 @@ def service_menu_print(device, this_service):
     print(BLOCK)
     this_service.name = this_service.name.strip()
     service_menu_header = "\n\n        ####### Service Menu for %s on %s on %s at %s #######" % (
-        this_service.name, device.device_InfoBundle.deviceType, device.device_InfoBundle.modelName,
+        this_service.name, device.device_infoBundle.deviceType, device.device_infoBundle.model_name,
         device.address)
     print(service_menu_header)
     this_service.print_Service_Details()
@@ -73,24 +73,24 @@ def device_menu_before_scpd_print(device):
     """Print the device menu before SCPD documents have been fetched. Not much to display here
     aside from basic host info and the option to fetch SCPD documents. Requires a host. Uses
     UPnP_Host object methods, which may change."""
-    print("     ####### Device Menu for Device-%s at %s #######" % (device.host_Index + 1,
+    print("        ####### Device Menu for Device-%s at %s #######" % (device.host_index + 1,
                                                                     device.address))
     print(DEVICE_MENU_BEFORE_SCPD_STRING)
-    device.print_Device_SSDP_Service_List()
+    device.print_Device_SSDP_service_list()
     print(DEVICE_MENU_OPTIONS)
 
 def device_menu_after_scpd_print(device):
     """Print the device menu with all info gained from SCPD documents. Uses many UPnP_Device
     methods, which may change."""
     print(BLOCK)
-    print("     ##### Device Menu for %s on %s at %s #####" % (device.device_InfoBundle.deviceType,
-                                                               device.device_InfoBundle.modelName,
+    print("        ##### Device Menu for %s on %s at %s #####" % (device.device_infoBundle.deviceType,
+                                                               device.device_infoBundle.model_name,
                                                                device.address))
-    device.device_InfoBundle.print_InfoBundle()
+    device.device_infoBundle.print_InfoBundle()
     device.remove_Empty_Services()
     device.gather_Device_Statistics()
     device.print_Device_Statistics()
-    device.print_Device_Service_List()
+    device.print_Device_service_list()
     print(DEVICE_MENU_AFTER_SCPD_STRING)
 
 def host_menu_print(host):
@@ -106,13 +106,13 @@ def list_hosts(this_network):
     a method of the UPnP_Network_Impression object."""
     print(BLOCK)
     host_index = 1
-    for host in this_network.hosts_List:
-        print("     +++++ Host ", host_index, " +++++")
+    for host in this_network.hosts_list:
+        print("        +++++ Host ", host_index, " +++++")
         host.print_Basic_Host_Info()
         print("")
-        for device in host.UPnP_Devices_List:
+        for device in host.upnp_devices_list:
             device.print_Basic_Device_Info()
-        print("     +++++++++++++++++++\n")
+        print("        +++++++++++++++++++\n")
         host_index += 1
 
 def main_menu_print():
@@ -121,8 +121,8 @@ def main_menu_print():
 
 def do_pyfiglet(text):
     """Uses pyfiglet to print a message. It has many styles but 'letters' composes each char
-    of the message of that ascii char, which is cool."""
-    ascii_banner = pyfiglet.figlet_format(text, font="letters")
+    of the message of that ascii char, which is cool. Default is 'small'."""
+    ascii_banner = pyfiglet.figlet_format(text, font="small")
     lines = ascii_banner.splitlines()
     for line in lines:
         print("         " + line)

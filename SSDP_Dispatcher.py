@@ -52,12 +52,12 @@ def send_discovery_packet_store_responses(this_Network):
 
 			# Store a response for later processing. Add a new host to the Network Impression if detected.
 			ssdp_Responses.append(response)
-			if addr[0] not in this_Network.address_List:
-				this_Network.address_List.append(addr[0])
-				this_Network.ports_List.append(addr[1])
-			print("		SSDP response packet received at ", datetime.datetime.now())
+			if addr[0] not in this_Network.address_list:
+				this_Network.address_list.append(addr[0])
+				this_Network.ports_list.append(addr[1])
+			print("		SSDP response packet received at ", datetime.now())
 
 		except timeout:
-			print("	Done search phase. Hosts detected: ", len(this_Network.address_List), "\n")
+			print("	Done search phase. Hosts detected: ", len(this_Network.address_list), "\n")
 	this_Network.ssdp_bundle = ssdp_Responses
 	return this_Network

@@ -37,14 +37,14 @@ class UPnP_Action:
 	def __init__(self, name):
 		self.name = name
 		self.arguments = set()
-		self.state_Variable_Table = UPnP_State_Variable_Table(name)
-		self.num_Arguments = 0
-		self.num_State_Variables = 0
+		self.state_variable_table= UPnP_State_Variable_Table(name)
+		self.num_arguments = 0
+		self.num_state_variables = 0
 		self.ID = 0
 
 		self.returns_Output = False
 
-		self.http_Codes = []
+		self.http_codes = []
 
 	def check_Returns_Output(self):
 		for argument in self.arguments:
@@ -53,30 +53,30 @@ class UPnP_Action:
 
 	def set_Arguments_List(self, arguments):
 		self.arguments = arguments
-		self.num_Arguments = len(self.arguments)
+		self.num_arguments = len(self.arguments)
 
 	def add_Argument_To_List(self, argument):
 		self.arguments.add(argument)
-		self.num_Arguments += 1
+		self.num_arguments += 1
 
-	def set_State_Variable_Table(self, state_Variable_Table):
-		self.state_Variable_Table = state_Variable_Table
-		self.num_State_Variables = len(state_Variable_Table.variables)
+	def set_State_Variable_Table(self, state_variable_table):
+		self.state_variable_table= state_variable_table
+		self.num_state_variables = len(state_variable_table.variables)
 
-	def add_To_State_Variable_Table(self, state_Variable):
-		self.state_Variable_Table.variables.add(state_Variable)
-		self.num_State_Variables += 1
+	def add_To_State_Variable_Table(self, state_variable):
+		self.state_variable_table.variables.add(state_variable)
+		self.num_state_variables += 1
 
 	def fill_Argument_Datatypes(self):
-		self.num_State_Variables = len(self.state_Variable_Table.variables)
+		self.num_state_variables = len(self.state_variable_table.variables)
 		print("The svt contains:")
-		for entry in self.state_Variable_Table.variables:
+		for entry in self.state_variable_table.variables:
 			print("Variable: ", variable.name)
 		print("And that's it.")
 		for entry in self.arguments:
-			this_Argument = entry.related_State_Variable
+			this_Argument = entry.related_state_variable
 			print(this_Argument)
-			for variable in self.state_Variable_Table.variables:
+			for variable in self.state_variable_table.variables:
 				print("Checking variable: ", variable.name, " against: ", this_Argument)
 				if variable.name.upper().strip() == this_Argument.upper().strip():
 					entry.datatype = variable.datatype
@@ -87,6 +87,6 @@ class UPnP_Action:
 			print("		Argument name:			", entry.name)
 			print("		Argument type:			", entry.datatype)
 			print("		Argument direction:		", entry.direction)
-			print("		Related State Variable:		", entry.related_State_Variable.strip())
+			print("		Related State Variable:		", entry.related_state_variable.strip())
 			print("")
 		print("\n")

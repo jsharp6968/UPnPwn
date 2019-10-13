@@ -19,6 +19,7 @@ class UPnPNetworkImpression:
         """Add a host to the network."""
         host.impression_id = self.num_hosts
         self.hosts_list.append(host)
+        self.address_list.append(host.address    )
         self.num_hosts += 1
         return "Added a host."
 
@@ -39,7 +40,7 @@ class UPnPNetworkImpression:
                 break
         return output_host
 
-    def update_Host_By_impression_id(self, impression_id, host_incoming):
+    def update_host_by_impression_id(self, impression_id, host_incoming):
         """Update a host with given impression_id."""
         for host in self.hosts_list:
             if impression_id == host.impression_id:

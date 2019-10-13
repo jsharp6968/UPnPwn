@@ -4,10 +4,10 @@
         Some day, it'll break UPnP the way sqlmap breaks poorly sanitised SQL."""
 #!/usr/bin/env python3
 import re
-from ssdp_Discover import SSDP_Discover
+from ssdp_Discover import ssdp_discover
 from scpd_Handler import read_SCPD_Root
-from UPnPwn_File_Handler import save_SOAP_Message
-from SOAP_Handler import SOAP_Handler
+from UPnPwn_File_Handler import save_soap_message
+from SOAP_Handler import SOAPHandler
 from UPnP_Network_Impression import UPnPNetworkImpression
 from UPnPwn_Print_Manager import (action_menu_print, host_menu_print,
                                   service_menu_print, list_hosts, device_menu_after_scpd_print,
@@ -32,7 +32,7 @@ def input_handler(prompt):
     user_selection = input(prompt + " > ")
 
 
-    if isinstance(user_selection, str):
+    if isinstance(user_selection, str) == False:
         pass
 
     user_selection = user_selection.upper()
@@ -53,14 +53,13 @@ def explore_action(device, this_service, action_name):
     user_selection = ""
     prompt = "  Action: %s      Service: %s     On: %s@%s" % (this_action.name,
                                                               this_service.name,
-                                                              device.device_InfoBundle.deviceType,
+                                                              device.device_infoBundle.deviceType,
                                                               device.address)
     while "Q" not in user_selection:
         user_selection = input_handler(prompt)
-        print(isinstance(user_selection))
-        if isinstance(user_selection) != "String":
+        if isinstance(user_selection, str) == False:
             pass
-        if "A" in user_selection:
+        elif "A" in user_selection:
             # Display the arguments of an action.
             if this_action.arguments:
                 print("""     This action takes no arguments.
@@ -70,15 +69,15 @@ def explore_action(device, this_service, action_name):
             action_menu_print(device, this_service, this_action)
         elif "S" in user_selection:
             # Display the state variables referenced by an action.
-            if this_action.state_Variable_Table.variables:
+            if this_action.state_variable_table.variables:
                 print("     (!) No state variables are listed for this action.")
             else:
-                this_action.state_Variable_Table.print_State_Variables()
+                this_action.state_variable_table.print_State_Variables()
         elif "C" in user_selection:
             # Send SOAP commands.
             user_selection = input_handler("      Save SOAP packet? y/n")
             dont_drop_it = SOAPHandler(device.address)
-            dont_drop_it.handle_Some_SOAP(device, this_action, this_service, "Clean")
+            dont_drop_it.handle_clean_soap(device, this_action, this_service)
             if "Y" in user_selection:
                 save_SOAP_Message(device, this_action, this_service, dont_drop_it.SOAP_Message)
             else:
@@ -88,21 +87,21 @@ def explore_action(device, this_service, action_name):
 
 def explore_service(device, service_id):
     """Navigate a service on a given device."""
-    this_service = device.service_List[service_id]
+    this_service = device.service_list[service_id]
     displayed_action_names = []
     for entry in this_service.actions:
         displayed_action_names.append(entry.name)
     service_menu_print(device, this_service)
     prompt = "      Service: %s   On: %s@%s" % (this_service.name,
-                                                device.device_InfoBundle.deviceType,
+                                                device.device_infoBundle.deviceType,
                                                 device.address)
     user_selection = ""
     while "Q" not in user_selection:
         user_selection = input_handler(prompt)
-        if isinstance(user_selection) != 'str':
+        if isinstance(user_selection, str) == False:
             # Eat non-string input.
             pass
-        if "H" in user_selection:
+        elif "H" in user_selection:
             # Return to Host menu.
             return 0
         if "M" in user_selection:
@@ -132,14 +131,14 @@ def explore_device_after_scpd(device):
     a list of information about the device like serial numbers, model
     nummbers, firmware codes etc."""
     device_menu_after_scpd_print(device)
-    prompt = "      %s@%s" % (device.device_InfoBundle.deviceType, device.address)
+    prompt = "      %s@%s" % (device.device_infoBundle.deviceType, device.address)
     user_selection = input_handler(prompt)
-    if isinstance(user_selection) != 'str':
+    if isinstance(user_selection, str) == False:
         pass
-    if "L" in user_selection:
-        device.print_Device_Service_List()
+    elif "L" in user_selection:
+        device.print_Device_service_list()
     elif "S" in user_selection:
-        if device.num_Services == 1:
+        if device.num_services == 1:
             print("     Only 1 service detected, automatically selecting that one.")
             explore_service(device, 0)
         else:
@@ -163,7 +162,7 @@ def explore_device(device):
             explore_device_after_scpd(device)
         else:
             device_menu_before_scpd_print(device)
-            prompt = "      Device-%s@%s" % (device.host_Index +1, device.address)
+            prompt = "      Device-%s@%s" % (device.host_index +1, device.address)
             user_selection = input_handler(prompt)
             if "F" in user_selection:
                 # Fetch SCPD documents.
@@ -172,7 +171,7 @@ def explore_device(device):
                 print("     Fetched and parsed all SCPD documents!")
                 scpd_has_been_fetched = True
             elif "L" in user_selection:
-                device.print_Device_SSDP_Service_List()
+                device.print_Device_SSDP_service_list()
             elif "R" in user_selection:
                 return 0
 
@@ -183,16 +182,16 @@ def explore_host(host):
     user_selection = ""
     while "Q" not in user_selection:
         user_selection = input_handler("      %s" % host.address)
-        if isinstance(user_selection) != 'str':
+        if isinstance(user_selection, str) == False:
             pass
-        if "D" in user_selection:
+        elif "D" in user_selection:
             if host.num_UPnP_Devices == 1:
                 print("     Only 1 device detected, automatically selecting that one.")
-                device = host.UPnP_Devices_List[0]
+                device = host.upnp_devices_list[0]
                 explore_device(device)
             else:
                 user_selection_int = int(input("      Enter device index > "))
-                device = host.UPnP_Devices_List[user_selection_int -1]
+                device = host.upnp_devices_list[user_selection_int -1]
                 explore_device(device)
             host_menu_print(host)
         elif "M" in user_selection:
@@ -208,26 +207,26 @@ def main_menu():
     """
     main_menu_print()
     # - Instantiates a Network Impression.
-    this_network = UPnP_Network_Impression(0)
+    this_network = UPnPNetworkImpression(0)
     user_selection = ""
     while "Q" not in user_selection:
         # - Iterates a query on a string for the presence of commands. Each command is one letter.
         # Does not allow multiple options, the first detected is selected. Eats non-strings.
-        user_selection = input_handler("      UPnPwn")
-        if isinstance(user_selection, str):
+        user_selection = input_handler("        UPnPwn")
+        if isinstance(user_selection, str) == False:
             pass
-        if "S" in user_selection:
+        elif "S" in user_selection:
             # Re-uses this_network so it gets wiped each scan.
-            this_network = SSDP_Discover(this_network)
-            list_Hosts(this_network)
+            this_network = ssdp_discover(this_network)
+            list_hosts(this_network)
             main_menu_print()
         elif "H" in user_selection:
-            if this_network.num_Hosts == 1:
+            if this_network.num_hosts == 1:
                 print("     Only 1 host detected, automatically selecting that one.")
-                explore_host(this_network.hosts_List[0])
+                explore_host(this_network.hosts_list[0])
             else:
-                user_selection = int(input("        Enter host ID"))
-                explore_host(this_network.hosts_List[user_selection - 1])
+                user_selection = int(input("      Enter host ID > "))
+                explore_host(this_network.hosts_list[user_selection - 1])
 
 def main():
     """Prints info and goes into main_menu, which loops. Zero Input."""

@@ -8,7 +8,7 @@ class UPnP_Device_InfoBundle:
 		self.manufacturer = ""
 		self.manufacturerURL = ""
 		self.modelDescription = ""
-		self.modelName = ""
+		self.model_name = ""
 		self.modelNumber = ""
 		self.modelURL = ""
 		self.serialNumber = ""
@@ -24,7 +24,7 @@ class UPnP_Device_InfoBundle:
 		print("		Manufacturer:		", self.manufacturer)
 		print("		Manufacturer URL:	", self.manufacturerURL)
 		print("		Model Description:	", self.modelDescription)
-		print("		Model Name:		", self.modelName)
+		print("		Model Name:		", self.model_name)
 		print("		Model Number:		", self.modelNumber)
 		print("		Model URL:		", self.modelURL)
 		print("		Serial Number:		", self.serialNumber)

@@ -26,12 +26,12 @@ def store_SCPD_Info(address, device):
 	device.device_Control_URL_List = device_Control_URL_List
 	device.device_Service_State_Variable_Table_List = device_Service_State_Variable_Table_List
 	device.device_Service_Action_Arguments_List_List = device_Service_Action_Arguments_List_List
-	device.presentation_Port = presentation_Port
+	device.presentation_port = presentation_port
 	device.presentationURL = presentationURL
 	device.device_Actions_Dictionary = device_Actions_Dictionary
 	return device
 
-def get_Presentation_URL(location):
+def get_presentation_url(location):
 	global presentationURL
 	presentationURL = location[0: location.find(":", 6)]
 	return presentationURL
@@ -67,10 +67,10 @@ def get_Presentation_Port(rootURL):
 def read_SCPD_Root(device):
 	location = device.root_XML_Location.strip()
 	print("		Reading this device's root XML description document from: ", location)
-	device.presentation_URL = get_Presentation_URL(location)
-	print("		Using presentation_URL: ", device.presentation_URL)
-	device.presentation_Port = get_Presentation_Port(location)
-	print("		Using presentation port: ", device.presentation_Port)
+	device.presentation_url = get_presentation_url(location)
+	print("		Using presentation_url: ", device.presentation_url)
+	device.presentation_port = get_Presentation_Port(location)
+	print("		Using presentation port: ", device.presentation_port)
 	scpd_File_Data = urllib.request.urlopen(location).read()
 	print("		Read URL successfully!")
 	prompt = "		Save this root description document locally? Y/N > "
@@ -106,10 +106,10 @@ def read_SCPD_Root(device):
 
 def update_A_Service(device, this_Service):
 	x = 0
-	for service in device.service_List:
+	for service in device.service_list:
 		if service.ST.upper().strip() == this_Service.ST.upper().strip():
 			print ("		Updating a service: ", this_Service.ST)
-			device.service_List[x] = this_Service
+			device.service_list[x] = this_Service
 			break
 		x += 1
 	return device
@@ -135,13 +135,13 @@ def check_Element_For_Services(element):
 			if l2.tag.upper().endswith("SCPDURL"):
 				print("We found a description document!")
 				print(l2.tag.upper())
-				this_Service.description_URL = l2.text
+				this_Service.description_url = l2.text
 			elif l2.tag.upper().endswith("CONTROLURL"):
-				this_Service.control_URL = l2.text
+				this_Service.control_url = l2.text
 			elif l2.tag.upper().endswith("EVENTSUBURL"):
 				this_Service.eventing_URL = l2.text
 			elif l2.tag.upper().endswith("SERVICEID"):
-				this_Service.service_ID = l2.text
+				this_Service.service_id = l2.text
 			elif l2.tag.upper().endswith("SERVICETYPE") or l2.tag.upper().endswith("ST"):
 				this_Service.name = l2.text
 				this_Service.ST = l2.text
@@ -157,7 +157,7 @@ def check_Element_For_Device_SpecVersion(element):
 			spec_Version_String += element[1].text
 	return spec_Version_String
 
-def check_Element_For_Device_InfoBundle(element, this_Device_InfoBundle):
+def check_Element_For_device_infoBundle(element, this_device_infoBundle):
 	element_Tag_As_String = str(element.tag).upper()
 	filledFields = 0
 	if element_Tag_As_String.endswith("DEVICE"):
@@ -167,40 +167,40 @@ def check_Element_For_Device_InfoBundle(element, this_Device_InfoBundle):
 				deviceType = deviceType.replace("urn:schemas-upnp-org:device:", "")
 				deviceType = deviceType.replace("urn:dslforum-org:device:", "")
 				deviceType = deviceType.replace(":1", "")
-				this_Device_InfoBundle.deviceType = deviceType
+				this_device_infoBundle.deviceType = deviceType
 				filledFields += 1
 			elif subElement.tag.upper().endswith("FRIENDLYNAME"):
-				this_Device_InfoBundle.friendlyName = subElement.text
+				this_device_infoBundle.friendlyName = subElement.text
 				filledFields += 1
 			elif subElement.tag.upper().endswith("MANUFACTURER"):
-				this_Device_InfoBundle.manufacturer = subElement.text
+				this_device_infoBundle.manufacturer = subElement.text
 				filledFields += 1
 			elif subElement.tag.upper().endswith("MANUFACTURERURL"):
-				this_Device_InfoBundle.manufacturerURL = subElement.text
+				this_device_infoBundle.manufacturerURL = subElement.text
 				filledFields += 1
 			elif subElement.tag.upper().endswith("MODELDESCRIPTION"):
-				this_Device_InfoBundle.modelDescription = subElement.text
+				this_device_infoBundle.modelDescription = subElement.text
 				filledFields += 1
-			elif subElement.tag.upper().endswith("MODELNAME"):
-				this_Device_InfoBundle.modelName = subElement.text
+			elif subElement.tag.upper().endswith("model_name"):
+				this_device_infoBundle.model_name = subElement.text
 				filledFields += 1
 			elif subElement.tag.upper().endswith("MODELNUMBER"):
-				this_Device_InfoBundle.modelNumber = subElement.text
+				this_device_infoBundle.modelNumber = subElement.text
 				filledFields += 1
 			elif subElement.tag.upper().endswith("MODELURL"):
-				this_Device_InfoBundle.modelURL = subElement.text
+				this_device_infoBundle.modelURL = subElement.text
 				filledFields += 1
 			elif subElement.tag.upper().endswith("SERIALNUMBER"):
-				this_Device_InfoBundle.serialNumber = subElement.text
+				this_device_infoBundle.serialNumber = subElement.text
 				filledFields += 1
 			elif subElement.tag.upper().endswith("UDN"):
-				this_Device_InfoBundle.UDN = subElement.text
+				this_device_infoBundle.UDN = subElement.text
 				filledFields += 1
 			elif subElement.tag.upper().endswith("UPC"):
-				this_Device_InfoBundle.UPC = subElement.text
+				this_device_infoBundle.UPC = subElement.text
 				filledFields += 1
-	this_Device_InfoBundle.filledFields = filledFields
-	return this_Device_InfoBundle
+	this_device_infoBundle.filledFields = filledFields
+	return this_device_infoBundle
 
 def parse_Root_SCPD_XML(scpd_File_Data, device):
 	root = ET.fromstring(scpd_File_Data)
@@ -209,10 +209,10 @@ def parse_Root_SCPD_XML(scpd_File_Data, device):
 		specVersion = check_Element_For_Device_SpecVersion(l1)
 		if specVersion != "NULL":
 			device.specVersion = specVersion
-		this_Device_InfoBundle = UPnP_Device_InfoBundle(device.root_XML_Location)
-		this_Device_InfoBundle = check_Element_For_Device_InfoBundle(l1, this_Device_InfoBundle)
-		if this_Device_InfoBundle.filledFields > 0:
-			device.device_InfoBundle = this_Device_InfoBundle
+		this_device_infoBundle = UPnP_Device_InfoBundle(device.root_XML_Location)
+		this_device_infoBundle = check_Element_For_device_infoBundle(l1, this_device_infoBundle)
+		if this_device_infoBundle.filledFields > 0:
+			device.device_infoBundle = this_device_infoBundle
 		for l2 in l1:
 			for l3 in l2:
 				this_Service = check_Element_For_Services(l3)
@@ -235,7 +235,7 @@ def parse_Root_SCPD_XML(scpd_File_Data, device):
 								if this_Service.name != "NULL":
 									device = add_A_Service(device, this_Service)
 	print("		Set all root-XML-derived lists...")
-	print("		The current device has the following number of Services: ", len(device.service_List))
+	print("		The current device has the following number of Services: ", len(device.service_list))
 	device.refresh_Description_URLs()
 	print("		We are handling: ", len(device.scpd_URL_List), " description document(s).")
 	device = fetch_Service_Description_Documents(device.scpd_URL_List, device)
@@ -262,8 +262,8 @@ def parse_Root_SCPD_XML(scpd_File_Data, device):
 
 def parse_SCPD_Description_Document(description_File_Contents, description_Full_URL, device):
 	current_Service = UPnP_Service("NULL")
-	for this_Service in device.service_List:
-		if description_Full_URL.strip().endswith(this_Service.description_URL.strip()):
+	for this_Service in device.service_list:
+		if description_Full_URL.strip().endswith(this_Service.description_url.strip()):
 			current_Service = this_Service
 			break
 	print("		Currently parsing details for service: ", current_Service.name)
@@ -273,17 +273,17 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
 		if this_Tag1.endswith("SERVICESTATETABLE"):
 			print("		Found the service's state table.")
 			for l2 in l1:
-				this_State_Variable_Table = current_Service.state_Variable_Table
+				this_state_variable_table = current_Service.state_variable_table
 				this_State_Variable = UPnP_State_Variable(l2[0].text.strip(), l2[1].text.strip(), l2.attrib)
 				print("		Adding a state variable named", l2[0].text.strip(), "to current service, dataType: ", l2[1].text.strip())
-				this_State_Variable_Table.add_State_Variable(this_State_Variable)
-				current_Service.state_Variable_Table = this_State_Variable_Table
-				current_Service.num_State_Variables = len(this_State_Variable_Table.variables)
+				this_state_variable_table.add_State_Variable(this_State_Variable)
+				current_Service.state_variable_table= this_state_variable_table
+				current_Service.num_state_variables = len(this_state_variable_table.variables)
 				device = update_A_Service(device, current_Service)
 				device.gather_Device_Statistics()
-				print("		This service now has ", current_Service.num_State_Variables, " state variable(s) associated with it.")
+				print("		This service now has ", current_Service.num_state_variables, " state variable(s) associated with it.")
 		for l2 in l1:
-			this_Action = UPnP_Action(l2.text.strip())
+			this_action = UPnP_Action(l2.text.strip())
 			thisTag = str(l2.tag).upper()
 			if thisTag.endswith("ACTION"):
 				for l3 in l2:
@@ -291,7 +291,7 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
 					thisTag = thisTag.upper()
 					if thisTag.endswith("NAME"):
 						if l2.tag.upper().endswith("ACTION"):
-							this_Action.name = l3.text.strip()
+							this_action.name = l3.text.strip()
 				try:
 					if l2[1].tag.upper().endswith("ARGUMENTLIST"):
 						x = 0
@@ -299,13 +299,13 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
 							while l2[1][x].tag.upper().endswith("ARGUMENT"):
 								this_Argument = UPnP_Action_Argument(l2[1][x][0].text.strip("New"))
 								this_Argument.direction = l2[1][x][1].text.strip()
-								this_Argument.related_State_Variable = l2[1][x][2].text.strip()
-								this_Action.add_Argument_To_List(this_Argument)
+								this_Argument.related_state_variable = l2[1][x][2].text.strip()
+								this_action.add_Argument_To_List(this_Argument)
 								x += 1
 						except:
 							#print "Going to add an Action to a Service..."
-							current_Service.add_Action(this_Action)
-							#print "Successfully added Action ", this_Action.name, " to Service ", current_Service.name
+							current_Service.add_Action(this_action)
+							#print "Successfully added Action ", this_action.name, " to Service ", current_Service.name
 							device = update_A_Service(device, current_Service)
 							#print "Successfully updated this service!"
 				except:
@@ -329,7 +329,7 @@ def read_SCPD_Description_Document(description_Full_URL, device):
 def fetch_Service_Description_Documents(description_Document_Relative_Paths_List, device):
 	for description_Document_Relative_Path in description_Document_Relative_Paths_List:
 		description_Full_URL = ""
-		description_Full_URL = device.presentation_URL + ":" + str(device.presentation_Port) + "/" + description_Document_Relative_Path
+		description_Full_URL = device.presentation_url + ":" + str(device.presentation_port) + "/" + description_Document_Relative_Path
 		description_Full_URL = description_Full_URL.strip()
 		print("		Trying this URL: ", description_Full_URL)
 		device = read_SCPD_Description_Document(description_Full_URL, device)

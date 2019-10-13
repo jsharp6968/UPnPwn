@@ -8,22 +8,22 @@ class UPnP_Host:
 		self.address = address
 		self.num_UPnP_Devices = 0
 		self.UPnP_Root_XML_Locations = []
-		self.UPnP_Devices_List = []
+		self.upnp_devices_list = []
 
 	def add_UPnP_Device(self, device):
-		self.UPnP_Devices_List.append(device)
+		self.upnp_devices_list.append(device)
 		self.num_UPnP_Devices += 1
 
 	def get_UPnP_Device_Count(self):
-		self.num_UPnP_Devices = len(self.UPnP_Devices_List)
+		self.num_UPnP_Devices = len(self.upnp_devices_list)
 
-	def set_Presentation_URL(self, presentation_URL):
-		self.presentation_URL = presentation_URL
+	def set_Presentation_URL(self, presentation_url):
+		self.presentation_url = presentation_url
 
 	def print_UPnP_Device_List(self):
 		print("		The following %s UPnP root devices live on %s:\n" % (self.num_UPnP_Devices, 
 			self.address))
-		for device in self.UPnP_Devices_List:
+		for device in self.upnp_devices_list:
 			device.print_Basic_Device_Info()
 
 	def print_Basic_Host_Info(self):

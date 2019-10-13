@@ -4,17 +4,17 @@ class UPnP_State_Variable_Table:
 	def __init__(self, name):
 		self.variables = set()
 		self.name = name
-		self.num_Variables = 0
+		self.num_variables = 0
 
-	def add_State_Variable(self, state_Variable):
-		self.variables.add(state_Variable)
-		self.num_Variables = len(self.variables)
+	def add_State_Variable(self, state_variable):
+		self.variables.add(state_variable)
+		self.num_variables = len(self.variables)
 
 	def print_State_Variables(self):
 		print("")
 		for variable in self.variables:
 			print("		Name: 	", variable.name)
 			print("		Datatype:	", variable.datatype)
-			print("		Is eventing:	", variable.is_Eventing)
+			print("		Is eventing:	", variable.is_eventing)
 			print("		Value:		", variable.value, "\n")
 		print("")

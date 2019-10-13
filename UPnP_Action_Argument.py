@@ -6,7 +6,7 @@ class UPnP_Action_Argument():
 		self.datatype = ""
 		self.direction = ""
 		self.value = ""
-		self.related_State_Variable = ""
+		self.related_state_variable = ""
 	
 	def set_Datatype(self, datatype):
 		self.datatype = datatype
@@ -20,5 +20,5 @@ class UPnP_Action_Argument():
 	def set_Value(self, value):
 		self.value = value
 
-	def set_Related_State_Variable(self, related_State_Variable):
-		self.related_State_Variable = related_State_Variable
+	def set_related_state_variable(self, related_state_variable):
+		self.related_state_variable = related_state_variable

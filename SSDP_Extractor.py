@@ -22,9 +22,9 @@ def extract_ST_String(data):
 	ssdp_Service_Type = extract_Substring_From_Packet_String(data, "ST:", '\\r\\n')
 	return ssdp_Service_Type
 
-def extract_USN_String(data):
-	ssdp_Service_USN = extract_Substring_From_Packet_String(data, "USN:", '\\r\\n')
-	return ssdp_Service_USN
+def extract_usn_String(data):
+	ssdp_Service_usn = extract_Substring_From_Packet_String(data, "usn:", '\\r\\n')
+	return ssdp_Service_usn
 
 def extract_Server_String(data):
 	ssdp_Server_String = extract_Substring_From_Packet_String(data, "SERVER:", '\\r\\n')
@@ -40,9 +40,9 @@ def extract_SSDP_Bundle(data):
 	if 'HTTP/1.1 200' in data:
 		this_SSDP_Bundle_Location = extract_Location_String(data)
 		this_SSDP_Bundle_ST = extract_ST_String(data)
-		this_SSDP_Bundle_USN = extract_USN_String(data)
+		this_SSDP_Bundle_usn = extract_usn_String(data)
 		this_SSDP_Bundle_Server = extract_Server_String(data)
-		this_SSDP_Bundle = UPnP_SSDP_Bundle(this_SSDP_Bundle_USN, this_SSDP_Bundle_ST, this_SSDP_Bundle_Location, this_SSDP_Bundle_Server)
+		this_SSDP_Bundle = UPnP_SSDP_Bundle(this_SSDP_Bundle_usn, this_SSDP_Bundle_ST, this_SSDP_Bundle_Location, this_SSDP_Bundle_Server)
 	elif "HTTP/1.1 2" in data:
 		print("		(!) Received a 2xx but not 200 HTTP code: ", http_Code)
 	else:

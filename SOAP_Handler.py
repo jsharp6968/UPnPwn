@@ -26,10 +26,11 @@ class SOAPHandler:
 
     def handle_clean_soap(self, this_device, this_action, this_service):
         """Largely deprecated, this is the same as above but only uses clean SOAP."""
-        soap_dispatcher = SOAP_Dispatcher(this_device.address_string)
+        soap_dispatcher = SOAP_Dispatcher(this_device.address)
+        soap_constructor = SOAP_Constructor(this_device.address) 
         soap_parser = SOAP_Parser()
         these_status_codes = set()
-        soap_dispatcher.prepare_clean_soap(this_device, this_action, this_service)
+        soap_constructor.prepare_clean_soap(this_device, this_action, this_service)
         try:
             reply = soap_dispatcher.send_soap_message()
             soap_responses = soap_parser.parse_SOAP_Response(reply.text)
@@ -37,7 +38,7 @@ class SOAPHandler:
             print("     " + reply.status_code)
             if reply.status_code == 200:
                 for entry, value in list(soap_responses.items()):
-                    for variable in this_service.state_Variable_Table.variables:
+                    for variable in this_service.state_variable_table.variables:
                         if entry == variable.name:
                             variable.set_Value(value)
                             print("matched a variable")
