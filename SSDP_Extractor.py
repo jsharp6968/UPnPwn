@@ -1,5 +1,5 @@
+"""Extracts data from an SSDP_Bundle object using simple parsing using the delimiters of desired substrings."""
 #! /usr/bin/env python3
-
 from UPnP_SSDP_Bundle import UPnP_SSDP_Bundle
 
 def extract_Substring_From_Packet_String(data, start, end):
@@ -35,9 +35,12 @@ def extract_HTTP_Code(data):
 	return http_Code
 
 def extract_SSDP_Bundle(data):
+	"""Extract the main aspects of an SSDP packet and store the HTTP response code only
+	if we got a 200."""
 	http_Code = extract_HTTP_Code(data)
 	data = str(data)
-	if 'HTTP/1.1 200' in data:
+	if http_Code == 200:
+		this_SSDP_Bundle.http_code = http_Code
 		this_SSDP_Bundle_Location = extract_Location_String(data)
 		this_SSDP_Bundle_ST = extract_ST_String(data)
 		this_SSDP_Bundle_usn = extract_usn_String(data)

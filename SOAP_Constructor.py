@@ -4,7 +4,6 @@
 class SOAP_Constructor:
 	def __init__(self, address):
 		self.address = address
-		pass
 		
 	# SOAP packet component creation methods
 	def set_Action_Tag_Opener(self, action_Name, service_Name):
@@ -17,6 +16,7 @@ class SOAP_Constructor:
 		self.action_Tag_Opener = action_Tag_Opener
 
 	def set_Action_Tag_Closer(self, action_Name):
+		"""This has a given xml structure as defined by the UPnP standard."""
 		action_Tag_Closer = "</u:"
 		action_Tag_Closer += action_Name
 		action_Tag_Closer += ">"
@@ -34,7 +34,6 @@ class SOAP_Constructor:
 				argument_Opener = "<" + entry.name + ">"
 				argument_Closer = "</" + entry.name + ">"
 			else:
-				#user_Input = raw_input("		Enter a value for %s: " % entry.name)
 				if "UINT" in entry.datatype.upper():
 					user_Input = 99999999999
 				else:
@@ -49,6 +48,8 @@ class SOAP_Constructor:
 		self.arguments_Out_List = arguments_Out_List
 
 	def set_Arguments_Body(self, arguments_List):
+		"""Takes user input to fill the fields of the variables you're submitting to
+		the service."""
 		arguments_body = ""
 		num_Arguments_Out = 0
 		arguments_Out_List	 = []
@@ -70,12 +71,10 @@ class SOAP_Constructor:
 		self.arguments_Out_List = arguments_Out_List
 
 	def set_Control_URL(self, control_url):
-		""" """
 		self.control_url = control_url
 
 	def set_Control_Port(self, control_Port):
 		self.control_Port = str(control_Port)
-		#self.control_Port = str(37443)
 
 	def set_SOAP_Destination(self):
 		destination = "http://"
@@ -87,6 +86,7 @@ class SOAP_Constructor:
 
 	# SOAP packet compilation methods
 	def compile_SOAP_Message(self):
+		"""Add the pieces of a SOAP packet together in sequence and call that a SOAP message."""
 		SOAP_Message = ""
 		SOAP_Message += self.soap_Envelope_Start
 		SOAP_Message += self.action_Tag_Opener

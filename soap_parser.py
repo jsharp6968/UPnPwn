@@ -7,7 +7,7 @@ class SOAP_Parser:
 	# Parsing methods
 	def parse_SOAP_Response(self, reply_Text):
 		"""Currently hosting a bug with xml.etree:
-		The error is 'unbound prefix, usually on the line containing the start of the 'u' tag.
+		The error is 'unbound prefix', usually on the line containing the start of the 'u' tag.
 		From the UPnP Spec V1.0: 
 
 		- "For future extensibility, when processing XML like the listing 

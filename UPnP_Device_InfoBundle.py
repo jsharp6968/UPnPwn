@@ -1,3 +1,6 @@
+"""UPnP implementations on IGDs (Internet Gateway Devices) typically have a list
+of information something like the below that they will provide you in their root
+xml document."""
 #! /usr/bin/env python3
 
 class UPnP_Device_InfoBundle:
@@ -18,6 +21,7 @@ class UPnP_Device_InfoBundle:
 		self.filledFields = 0
 
 	def print_InfoBundle(self):
+		"""Print everything, cli formatted."""
 		print("		Root XML Document:	", self.sourceDocumentURL)
 		print("		Device Type:		", self.deviceType)
 		print("		Friendly Name:		", self.friendlyName)

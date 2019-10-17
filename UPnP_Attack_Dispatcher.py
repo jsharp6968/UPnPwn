@@ -1,3 +1,6 @@
+"""The idea is to isolate anything you could call an attack from the rest of the
+utility code, in order to make it as flexible and modular as possible. I've dumped
+a few choice functions in here but really"""
 #! /usr/bin/env python3
 from dirtySOAP import *
 from SOAP_Handler import *
@@ -9,7 +12,7 @@ class UPnP_Attack_Dispatcher:
 		self.target_device_address = target_device.address
 
 	def overflow_Check_Int(self, this_action, this_Service, this_Device):
-		# Attack int-based services by exceeding their max value.
+		"""Attack int-based services by exceeding their max value."""
 		dontDropIt = SOAP_Handler(self.target_device_address)
 		for argument in this_action.arguments:
 			if argument.datatype.upper().contains("UINT"):
@@ -19,7 +22,7 @@ class UPnP_Attack_Dispatcher:
 					this_Input += 1
 
 	def type_Error_Footprint(self, device, this_action, this_Service):
-		# Attempts to find errors in an implementation by submitting the wrong data format to a service.
+		"""Attempt to find errors in an implementation by submitting data of the wrong datatype to a service."""
 		total = 0
 		type_List = [ "int", "float", "char", "byte", "string", "bool",  "shellcode" ]
 		for service in self.target_device.service_list:
@@ -49,8 +52,8 @@ class UPnP_Attack_Dispatcher:
 		print("		Got ", h401_count, " total HTTP 401 Errors and ", h500_count, " total HTTP 500 Errors.")
 
 	def hail_Mary_Simple_Test(self):
-		# Makes use of a hardcoded response in the Dirty SOAP type. Sends shellcode/something hacky and lazy.
-		# Soon to be replaced with actual attack vectors.
+		"""Makes use of a hardcoded response in the Dirty SOAP type. Sends shellcode/something hacky and lazy.
+		Soon to be replaced with actual attack vectors, although with IoT you never know..."""
 		dontDropIt = dirtySOAP_Handler(self.target_device_address)
 		total = 0
 		for service in self.target_device.service_list:
@@ -80,7 +83,8 @@ class UPnP_Attack_Dispatcher:
 		print("		Got ", h401_count, " total HTTP 401 Errors and ", h500_count, " total HTTP 500 Errors.")
 
 	def send_Dirty_SOAP(self, this_action, this_Service):
-		# Same as the regular SOAP send function, but with setted HTTP response codes.
+		"""Same as the regular SOAP send function, but with setted HTTP response codes.
+		Probably defunct now, but as the SOAP handling code is in flux I'll keep it for now."""
 		these_Status_Codes = set()
 		dirt = input("		Enter some dirt to send as an action argument > ")
 		count = int(input("		Number of packets to send > "))

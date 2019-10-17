@@ -1,5 +1,6 @@
+"""SOAP as a protocol has various uses, so why not a module for automated SOAP fuzzing.
+Ideally it can be used with a separate fuzzer like sfuzz."""
 #! /usr/bin/env python3
-
 from SOAP_Handler import *
 
 class dirtySOAP_Handler(SOAP_Handler):
@@ -10,6 +11,7 @@ class dirtySOAP_Handler(SOAP_Handler):
 		self.command_linux = command
 
 	def make_Dirty_Packet(self, dirt, arguments_List):
+		"""Stuffs every variable with whatever you specify as dirt."""
 		arguments_body = ""
 		num_Arguments_Out = 0
 		arguments_Out_List = []
@@ -32,6 +34,7 @@ class dirtySOAP_Handler(SOAP_Handler):
 		self.arguments_Out_List = arguments_Out_List
 
 	def make_Auto_Packet(self, arguments_List):
+		"""Use detected or specified datatypes to determine what to put in the SOAP packet."""
 		arguments_body = ""
 		command = ""
 		num_Arguments_Out = 0
@@ -67,16 +70,18 @@ class dirtySOAP_Handler(SOAP_Handler):
 		self.arguments_Out_List = arguments_Out_List
 
 	def prepare_Dirty_SOAP(self, device, this_action, this_Service, dirt):
+		"""Assembles all the component parts of the packet including the filled list
+		of variables to submit to the service at hand."""
 		self.set_Action_Tag_Opener(this_action.name, this_Service.name)
 		self.set_Action_Tag_Closer(this_action.name)
 		self.make_Dirty_Packet(dirt, this_action.arguments_List)
 		self.set_Control_URL(this_Service.control_url)
 		self.set_Control_Port(device.presentation_port)
 		self.set_SOAP_Destination()
-		self.compile_SOAP_Message()
-		
+		self.compile_SOAP_Message()	
 
 	def handle_Dirty_SOAP(self, device, this_action, this_Service, dirt):
+		"""Entry point for """
 		these_Status_Codes = set()
 		self.prepare_Dirty_SOAP(device, this_action, this_Service)
 		self.make_Dirty_Packet(dirt, this_action.arguments)
@@ -84,9 +89,9 @@ class dirtySOAP_Handler(SOAP_Handler):
 		self.compile_SOAP_Message()
 		try:
 			reply = self.send_SOAP_Message()
-			SOAP_Responses = self.parse_SOAP_Response(reply)
 			print(reply.text)
 			print("Got SOAP Responses")
+			SOAP_Responses = self.parse_SOAP_Response(reply)
 			for entry in SOAP_Responses:
 				these_Status_Codes.add(reply.status_code)
 				print(reply.status_code)
@@ -98,6 +103,9 @@ class dirtySOAP_Handler(SOAP_Handler):
 		return these_Status_Codes
 
 	def do_Portmapping_Flood(self):
+		"""The idea was to flood a router with portmapping requests, which generally take
+		the largest amount of arguments and therefore server (router) side processing of 
+		your input. Huawei HG659b goes to 50% cpu usage. Turns out it has a LILO queue of 30."""
 		SOAP_Message = """<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
    							s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
    							<s:Body><u:AddPortMapping xmlns:s="urn:schemas-upnp-org:service:WANPPPConnection:1"><NewRemoteHost></NewRemoteHost><NewExternalPort>395</NewExternalPort><NewProtocol>TCP</NewProtocol><NewInternalPort>12196</NewInternalPort><NewInternalClient>192.168.1.100</NewInternalClient><NewEnabled>1</NewEnabled><NewPortMappingDescription>Big description string, just to consume a bit more memory. We have about a Tweet.</NewPortMappingDescription><NewLeaseDuration>1</NewLeaseDuration></u:AddPortMapping></s:Body>
