@@ -6,21 +6,6 @@ class SOAP_Parser:
 
 	# Parsing methods
 	def parse_SOAP_Response(self, reply_Text):
-		"""Currently hosting a bug with xml.etree:
-		The error is 'unbound prefix', usually on the line containing the start of the 'u' tag.
-		From the UPnP Spec V1.0: 
-
-		- "For future extensibility, when processing XML like the listing 
-		above, devices and control points must ignore: 
-		(a) any unknown elements and their sub elements or content, and 
-		(b) any unknown attributes and their values.
-		Devices and control points shall ignore any XML comments or XML processing instructions 
-		they may receive that they do not understand."
-
-		I had thought the implementation I was testing was sending malformed packets until
-		I saw this: "XML namespace prefixes do not have to be the specific examples given above 
-		(e.g., “s” or “u”); they can be any value that obeys the rules of the general XML namespace 
-		mechanism; devices must accept requests that use other legal XML namespace prefixes."""
 		if reply_Text == "":
 			return 0
 		reply_Text = str(reply_Text)

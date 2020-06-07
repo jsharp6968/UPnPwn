@@ -23,7 +23,7 @@ DEVICE_MENU_BEFORE_SCPD_STRING = """
         UPnP services (such as action names, arguments etc) are obtained from SCPD files.
         These have not yet been fetched, so we know very little right now.\n"""
 
-DEVICE_MENU_OPTIONS = """       L | l = List SSDP-discovered services (already listed above)
+DEVICE_MENU_OPTIONS = """        L | l = List SSDP-discovered services (already listed above)
         F | f = Fetch and parse all SCPD documents
         R | r = Return to the Host menu\n"""
 
@@ -48,12 +48,12 @@ def action_menu_print(device, this_service, this_action):
         this_action.name, this_service.name, device.device_infoBundle.deviceType,
         device.device_infoBundle.model_name, device.address)
     print(action_menu_header)
-    print("     Which is an action of:  ", this_service.name)
-    print("     Living on host:         ", device.address)
-    print("     Arguments:          ", this_action.num_arguments)
-    print("     State Variables:        ", this_action.num_state_variables)
+    print("     Which is an action of:  " + this_service.name)
+    print("     Living on host:         " + device.address)
+    print("     Arguments:          " + str(this_action.num_arguments))
+    print("     State Variables:        " + str(this_action.num_state_variables))
     this_action.print_Action_Arguments()
-    print("\n", ACTION_MENU_STRING)
+    print("\n" + ACTION_MENU_STRING)
 
 def service_menu_print(device, this_service):
     """Print for the service menu. Requires discovery to have been done and a sensibly filled
@@ -73,6 +73,7 @@ def device_menu_before_scpd_print(device):
     """Print the device menu before SCPD documents have been fetched. Not much to display here
     aside from basic host info and the option to fetch SCPD documents. Requires a host. Uses
     UPnP_Host object methods, which may change."""
+    print(BLOCK)
     print("        ####### Device Menu for Device-%s at %s #######" % (device.host_index + 1,
                                                                     device.address))
     print(DEVICE_MENU_BEFORE_SCPD_STRING)
@@ -97,7 +98,7 @@ def host_menu_print(host):
     """Print the host menu, which is just a UPnP_Host method to list devices, then the menu
     string."""
     print(BLOCK)
-    print("\n\n     ####### Host Menu for %s #######" % host.address)
+    print("\n\n        ####### Host Menu for %s #######" % host.address)
     host.print_UPnP_Device_List()
     print(HOST_MENU_STRING)
 
@@ -107,7 +108,7 @@ def list_hosts(this_network):
     print(BLOCK)
     host_index = 1
     for host in this_network.hosts_list:
-        print("        +++++ Host ", host_index, " +++++")
+        print("        +++++ Host " + str(host_index) + " +++++")
         host.print_Basic_Host_Info()
         print("")
         for device in host.upnp_devices_list:

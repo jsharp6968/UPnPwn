@@ -28,12 +28,13 @@ def input_handler(prompt):
     Casts everything to uppercase to dodge the problem
     of case handling. This is lazy.
     Checks every run for 'Q' or 'EXIT'."""
-    prompt = "\n" + prompt
-    user_selection = input(prompt + " > ")
+    prompt = "\n" + prompt + " > "
+    user_selection = ""
+    user_selection = raw_input(prompt)
 
 
     if isinstance(user_selection, str) == False:
-        pass
+        return ""
 
     user_selection = user_selection.upper()
 
@@ -168,7 +169,7 @@ def explore_device(device):
                 # Fetch SCPD documents.
                 device.scpd_has_been_fetched = True
                 device = read_SCPD_Root(device)
-                print("     Fetched and parsed all SCPD documents!")
+                print("        Fetched and parsed all SCPD documents!")
                 scpd_has_been_fetched = True
             elif "L" in user_selection:
                 device.print_Device_SSDP_service_list()
@@ -186,7 +187,7 @@ def explore_host(host):
             pass
         elif "D" in user_selection:
             if host.num_UPnP_Devices == 1:
-                print("     Only 1 device detected, automatically selecting that one.")
+                print("       Only 1 device detected, automatically selecting that one.")
                 device = host.upnp_devices_list[0]
                 explore_device(device)
             else:
@@ -222,7 +223,7 @@ def main_menu():
             main_menu_print()
         elif "H" in user_selection:
             if this_network.num_hosts == 1:
-                print("     Only 1 host detected, automatically selecting that one.")
+                print("        Only 1 host detected, automatically selecting that one.")
                 explore_host(this_network.hosts_list[0])
             else:
                 user_selection = int(input("      Enter host ID > "))

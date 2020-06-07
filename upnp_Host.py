@@ -21,11 +21,11 @@ class UPnP_Host:
 		self.presentation_url = presentation_url
 
 	def print_UPnP_Device_List(self):
-		print("		The following %s UPnP root devices live on %s:\n" % (self.num_UPnP_Devices, 
+		print("        The following %s UPnP root devices live on %s:\n" % (self.num_UPnP_Devices, 
 			self.address))
 		for device in self.upnp_devices_list:
 			device.print_Basic_Device_Info()
 
 	def print_Basic_Host_Info(self):
-		print("		Address: ", self.address)
-		print("		Devices: ", self.num_UPnP_Devices)
+		print("        Address: " + self.address)
+		print("        Devices: " + str(self.num_UPnP_Devices))

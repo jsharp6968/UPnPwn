@@ -40,7 +40,8 @@ class UPnP_Device:
 		if "UPNP:ROOTDEVICE" not in bundle.ST.upper() and "UUID:" not in bundle.ST.upper():
 			this_Service = UPnP_Service(bundle.ST)
 			this_Service.usn = bundle.usn
-			this_Service.description_url = bundle.Location
+			this_Service.root_xml_location = bundle.Location
+			this_Service.Location = bundle.Location
 			this_Service.ST = bundle.ST
 			this_Service.Server = bundle.Server
 			if self.server_string == "":
@@ -87,17 +88,17 @@ class UPnP_Device:
 	# Printing methods
 	def print_Basic_Device_Info(self):
 		"""Print data about the device."""
-		print("		Device Index:	       ", (self.host_index + 1))
-		print("		Server: 		%s" % self.server_string)
-		print("		Root XML URL: 		%s" % self.root_xml_location)
-		print("		Packets received: 	%s" % len(self.device_SSDP_Services_List))
+		print("        Device Index:           " + str((self.host_index + 1)))
+		print("        Server: 		%s" % self.server_string)
+		print("        Root XML URL: 		%s" % self.root_xml_location)
+		print("        Packets received: 	%s" % len(self.device_SSDP_Services_List))
 		print("")
 
 	def print_Device_Statistics(self):
 		"""A brief overview of a device's UPnP implementation footprint."""
-		print("		Services: 		", self.num_services)
-		print("		Actions: 		", self.num_actions)
-		print("		State Variables: 	", self.num_state_variables)
+		print("        Services: 		" + str(self.num_services))
+		print("        Actions: 		" + str(self.num_actions))
+		print("        State Variables: 	" + str(self.num_state_variables))
 		print("")
 
 	def print_Device_SSDP_service_list(self):
@@ -116,7 +117,11 @@ class UPnP_Device:
 			this_Service.name = this_Service.name.replace("urn:dslforum-org:service:", "")
 			this_Service.name = this_Service.name.replace(":1", "")
 			print("		Service ID %s: %s" % (x, this_Service.name))
-			print("		Num. of Actions: 		", this_Service.num_actions)
-			print("		Num. of State Variables: 	", this_Service.num_state_variables)
+			print("		Num. of Actions: 		" + str(this_Service.num_actions))
+			print("		Num. of State Variables: 	" + str(this_Service.num_state_variables))
 			print("")
 			x+=1
+
+		if len(self.service_list) > 1:
+			print"        No services to display."
+

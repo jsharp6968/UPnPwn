@@ -13,12 +13,12 @@ def found_new_host(this_network, this_ssdp_bundle, address):
     Create host object. Add the new root XML doc to the Host and Device. Add the
     device to the host. Add the host to the network."""
     this_device = UPnP_Device(address, 0)
-    this_device.server_String = this_ssdp_bundle.Server
+    this_device.server_string = this_ssdp_bundle.Server
     this_device.parse_SSDP_Bundle(this_ssdp_bundle)
 
     this_host = UPnP_Host(address)
     this_host.UPnP_Root_XML_Locations.insert(0, this_ssdp_bundle.Location)
-    this_device.root_XML_Location = this_ssdp_bundle.Location
+    this_device.root_xml_location = this_ssdp_bundle.Location
     this_host.add_UPnP_Device(this_device)
 
     this_network.add_host(this_host)
@@ -31,8 +31,8 @@ def found_new_device(this_network, this_host, this_ssdp_bundle, address):
     Add the new device's description document to the host's doc list. Then add
     the device. Update the host on the network."""
     this_device = UPnP_Device(address, this_host.num_UPnP_Devices)
-    this_device.server_String = this_ssdp_bundle.Server
-    this_device.root_XML_Location = this_ssdp_bundle.Location
+    this_device.server_string = this_ssdp_bundle.Server
+    this_device.root_xml_location = this_ssdp_bundle.Location
     this_device.parse_SSDP_Bundle(this_ssdp_bundle)
 
     this_host.UPnP_Root_XML_Locations.append(this_ssdp_bundle.Location)
