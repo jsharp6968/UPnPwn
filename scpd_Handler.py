@@ -3,12 +3,11 @@ UPnP devices you interact with. Strange behaviour with a given device may be due
 format of the description documents, and will also depend on the version of UPnP implementation encountered.
 Ideally this will become modular and use a library of schemas. Yeah, 350 lines is too big."""
 #! /usr/bin/env python3
-import urllib3
 import xml.etree.ElementTree as ET
+import urllib3
 from UPnP_Action import *
 from UPnP_Service import *
 from UPnP_State_Variable import *
-from UPnP_State_Variable_Table import *
 from UPnP_Action_Argument import *
 from UPnP_Device_InfoBundle import *
 from UPnPwn_File_Handler import *
@@ -110,7 +109,7 @@ def update_A_Service(device, this_Service):
     x = 0
     for service in device.service_list:
         if service.ST.upper().strip() == this_Service.ST.upper().strip():
-            print ("        Updating a service: " + this_Service.ST)
+            print("        Updating a service: " + this_Service.ST)
             device.service_list[x] = this_Service
             break
         x += 1
@@ -305,7 +304,7 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
                 this_State_Variable = UPnP_State_Variable(l2[0].text.strip(), l2[1].text.strip(), l2.attrib)
                 print("     Adding a state variable named " + l2[0].text.strip() + " to current service, dataType: " + l2[1].text.strip())
                 this_state_variable_table.add_State_Variable(this_State_Variable)
-                current_Service.state_variable_table= this_state_variable_table
+                current_Service.state_variable_table = this_state_variable_table
                 current_Service.num_state_variables = len(this_state_variable_table.variables)
                 device = update_A_Service(device, current_Service)
                 device.gather_Device_Statistics()
@@ -316,7 +315,6 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
                 this_action = UPnP_Action(l2.text.strip())
             else:
                 this_action = UPnP_Action("temp")
-                pass
             thisTag = str(l2.tag).upper()
             if thisTag.endswith("ACTION"):
                 for l3 in l2:
