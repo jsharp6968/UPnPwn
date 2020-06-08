@@ -6,9 +6,14 @@ import xml.etree.ElementTree as ET
 class SOAP_Dispatcher:
 	def __init__(self, address):
 		self.address = address
+		self.destination = '192.168.1.1'
+		self.SOAP_Message = ""
 
 	# Send/receive methods
 	def send_soap_message(self):
+		reply = "Error - Reply not retrieved"
+		print(self.SOAP_Message)
+		reply = requests.post(self.destination, timeout=5, data=self.SOAP_Message)
 		try:
 			reply = requests.post(self.destination, timeout=5, data=self.SOAP_Message)
 		except:

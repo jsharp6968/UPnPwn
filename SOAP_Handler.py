@@ -31,8 +31,15 @@ class SOAPHandler:
         soap_parser = SOAP_Parser()
         these_status_codes = set()
         soap_constructor.prepare_clean_soap(this_device, this_action, this_service)
+        soap_dispatcher.destination = soap_constructor.destination
+        soap_dispatcher.SOAP_Message = soap_constructor.SOAP_Message
         try:
             reply = soap_dispatcher.send_soap_message()
+            print("\n\nResponse:\n")
+            print(reply.status_code)
+            print(reply.headers)
+            print(reply.text)
+            print("\n\nEnd of response\n")
             soap_responses = soap_parser.parse_SOAP_Response(reply.text)
             these_status_codes.add(reply.status_code)
             print("     " + reply.status_code)

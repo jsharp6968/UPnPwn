@@ -19,12 +19,15 @@ def fetch_SCPD_File_Contents(URL):
     """Read an xml document from a URL, root or otherwise, into a string."""
     scpd_File_Data = ""
     try:
-        scpd_File_Data = http.request('GET', URL)
+        scpd_File_Data = http.request('GET', URL).data
     except:
-        scpd_File_Data = http.request('GET', URL + '.xml')
+        scpd_File_Data = http.request('GET', URL + '.xml').data
         print("     Nope, it was " + URL + ".xml !")
-    print(str(scpd_File_Data.data))
-    return str(scpd_File_Data.data)
+    scpd_File_Data = str(scpd_File_Data)
+    scpd_File_Data = scpd_File_Data[2:-1]
+    scpd_File_Data = scpd_File_Data.replace('\\r', '')
+    scpd_File_Data = scpd_File_Data.replace('\\n', '')
+    return scpd_File_Data
 
 def store_SCPD_Info(address, device):
     device.device_SCPD_URL_List = device_SCPD_URL_List
@@ -80,8 +83,7 @@ def read_SCPD_Root(device):
     device.presentation_port = get_Presentation_Port(location)
     print("        Using presentation port: " + str(device.presentation_port))
 
-    scpd_File_Data = http.request('GET', location)
-    scpd_File_Data = str(scpd_File_Data.data)
+    scpd_File_Data = fetch_SCPD_File_Contents(location)
     print("        Read URL successfully!")
     #print("\n" + scpd_File_Data + "\n")
     #prompt = "        Save this root description document locally? Y/N > "
@@ -90,10 +92,13 @@ def read_SCPD_Root(device):
     #if userSelection.upper() == "Y":
     #    scpd_File_Name = ''.join(e for e in location if e.isalnum())
     #    save_File(scpd_File_Name, scpd_File_Data)
+    #print("Root data\n\n")
+    #print(scpd_File_Data)
+    #print("\n\nEnd Root data\n\n")
     device = parse_Root_SCPD_XML(scpd_File_Data, device)
     device.purge_Service_Repetitions()
     device.remove_Empty_Services()
-    print("     Parsed root XML...")
+    print("     Parsed root XML and further description documents...")
     print("     Stored SCPD info...")
     return device
 
@@ -256,7 +261,7 @@ def parse_Root_SCPD_XML(scpd_File_Data, device):
     print("        Set all root-XML-derived lists...")
     print("        The current device has the following number of Services: " + str(len(device.service_list)))
     device.refresh_Description_URLs()
-    print("     We are handling: " + str(len(device.scpd_URL_List)) + " description document(s).")
+    print("     We are handling: " + str(len(device.scpd_URL_List)) + " description document(s).\n\n")
     device = fetch_Service_Description_Documents(device.scpd_URL_List, device)
     return device
 
@@ -292,13 +297,13 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
     root = ET.fromstring(description_File_Contents)
     for l1 in root:
         this_Tag1 = l1.tag.upper()
-        print("service desc l1= " + this_Tag1)
+        #print("service desc l1= " + this_Tag1)
         if this_Tag1.endswith("SERVICESTATETABLE"):
             print("     Found the service's state table.")
             for l2 in l1:
                 this_state_variable_table = current_Service.state_variable_table
                 this_State_Variable = UPnP_State_Variable(l2[0].text.strip(), l2[1].text.strip(), l2.attrib)
-                print("     Adding a state variable named" + l2[0].text.strip() + "to current service, dataType: " + l2[1].text.strip())
+                print("     Adding a state variable named " + l2[0].text.strip() + " to current service, dataType: " + l2[1].text.strip())
                 this_state_variable_table.add_State_Variable(this_State_Variable)
                 current_Service.state_variable_table= this_state_variable_table
                 current_Service.num_state_variables = len(this_state_variable_table.variables)
@@ -306,8 +311,12 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
                 device.gather_Device_Statistics()
                 print("     This service now has " + str(current_Service.num_state_variables) + " state variable(s) associated with it.")
         for l2 in l1:
-            print("service desc l2=" + l2.tag)
-            this_action = UPnP_Action(l2.text.strip())
+            #print("service desc l2=" + l2.tag)
+            if type(l2.text) == l2.tag:
+                this_action = UPnP_Action(l2.text.strip())
+            else:
+                this_action = UPnP_Action("temp")
+                pass
             thisTag = str(l2.tag).upper()
             if thisTag.endswith("ACTION"):
                 for l3 in l2:
@@ -321,21 +330,23 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
                         x = 0
                         try:
                             while l2[1][x].tag.upper().endswith("ARGUMENT"):
-                                this_Argument = UPnP_Action_Argument(l2[1][x][0].text.strip("New"))
+                                this_Argument = UPnP_Action_Argument(l2[1][x][0].text.replace("New", ""))
                                 this_Argument.direction = l2[1][x][1].text.strip()
                                 this_Argument.related_state_variable = l2[1][x][2].text.strip()
+                                #print("? " + l2[1][x][0].text)
+                                #print("! " + this_Argument.name)
                                 this_action.add_Argument_To_List(this_Argument)
                                 x += 1
                         except:
-                            #print "Going to add an Action to a Service..."
+                            print("     Going to add an Action to a Service...")
                             current_Service.add_Action(this_action)
-                            #print "Successfully added Action ", this_action.name, " to Service ", current_Service.name
+                            print("     Successfully added Action " + this_action.name + " to Service " + current_Service.name)
                             device = update_A_Service(device, current_Service)
-                            #print "Successfully updated this service!"
+                            print("     Successfully updated this service!")
                 except:
                     print("     Exception handling an argument list...")
                 device = update_A_Service(device, current_Service)
-    print("     Parsed through a description document...")
+    print("     Parsed through a description document...\n\n")
     return device
 
 def save_SCPD_Description_Document(description_Full_URL):

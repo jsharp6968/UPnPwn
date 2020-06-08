@@ -41,7 +41,7 @@ def send_discovery_packet_store_responses(this_Network):
     ssdp_Discovery_Socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)
     ssdp_Discovery_Socket.settimeout(ssdp_Search_Duration)
     message = compile_SSDP_Discovery_Packet_Message()
-    b = bytes(message)
+    b = bytes(message, 'ascii')
 
     # Print some output. Send discovery packet and listen for search duration.
     print("        Sent SSDP discovery packet at " + get_time())

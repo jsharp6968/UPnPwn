@@ -30,7 +30,7 @@ def input_handler(prompt):
     Checks every run for 'Q' or 'EXIT'."""
     prompt = "\n" + prompt + " > "
     user_selection = ""
-    user_selection = raw_input(prompt)
+    user_selection = input(prompt)
 
 
     if isinstance(user_selection, str) == False:
@@ -70,7 +70,7 @@ def explore_action(device, this_service, action_name):
             action_menu_print(device, this_service, this_action)
         elif "S" in user_selection:
             # Display the state variables referenced by an action.
-            if this_action.state_variable_table.variables:
+            if len(this_action.state_variable_table.variables) < 1:
                 print("     (!) No state variables are listed for this action.")
             else:
                 this_action.state_variable_table.print_State_Variables()
@@ -109,7 +109,7 @@ def explore_service(device, service_id):
             main_menu()
         elif "L" in user_selection:
             # List actions, print menu again.
-            this_service.print_Service_Actions()
+            #this_service.print_Service_Actions()
             service_menu_print(device, this_service)
         elif "A" in user_selection:
             # Select an action. I an int is entered after 'a' ie 'a3' then
@@ -171,6 +171,7 @@ def explore_device(device):
                 device = read_SCPD_Root(device)
                 print("        Fetched and parsed all SCPD documents!")
                 scpd_has_been_fetched = True
+                do_pyfiglet("\n\nReady to Pwn")
             elif "L" in user_selection:
                 device.print_Device_SSDP_service_list()
             elif "R" in user_selection:

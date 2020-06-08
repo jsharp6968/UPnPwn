@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import xml.etree.ElementTree as ET
+
 class SOAP_Parser:
 	def __init__(self):
 		pass
@@ -9,6 +11,7 @@ class SOAP_Parser:
 		if reply_Text == "":
 			return 0
 		reply_Text = str(reply_Text)
+		print(reply_Text)
 		#reply_Text = reply_Text.replace("xmlns:s=\"W", "xmlns:u=\"W")
 		print("starting")
 		#print(reply_Text[reply_Text.find("<u") + 12:])

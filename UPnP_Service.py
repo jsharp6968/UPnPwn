@@ -87,10 +87,10 @@ class UPnP_Service:
 			x += 1
 
 	def print_Service_Details(self):
-		print("		Service Name: 	", self.name)
-		print("		Desc. URL:	", self.description_url)
-		print("		Control URL: 	", self.control_url)
-		print("		Eventing URL: 	", self.eventing_URL)
-		print("		Actions: 	", self.num_actions)
-		print("		State Vars:	", self.num_state_variables)
+		print("        Service Name: 	", self.name)
+		print("        Desc. URL:	", self.description_url)
+		print("        Control URL: 	", self.control_url)
+		print("        Eventing URL: 	", self.eventing_URL)
+		print("        Actions: 	", self.num_actions)
+		print("        State Vars:	", self.num_state_variables)
 		print("")

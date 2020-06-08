@@ -4,6 +4,11 @@
 class SOAP_Constructor:
 	def __init__(self, address):
 		self.address = address
+		self.SOAP_ENVELOPE_START = """<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/\"
+   s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/\">
+   <s:Body>"""
+		self.SOAP_ENVELOPE_END = """</s:Body>
+</s:Envelope>"""
 		
 	# SOAP packet component creation methods
 	def set_Action_Tag_Opener(self, action_Name, service_Name):
@@ -58,12 +63,12 @@ class SOAP_Constructor:
 				num_Arguments_Out += 1
 				arguments_Out_List.append(entry.name)
 				argument_Opener = "<" + entry.name + ">"
-				argument_Closer = "</" + entry.name + ">"
+				argument_Closer = "</" + entry.name + ">\n"
 			else:
 				user_Input = input("		Enter a value for %s: " % entry.name)
 				argument_Opener = "<" + entry.name + ">"
 				argument_Opener += user_Input
-				argument_Closer = "</" + entry.name + ">"
+				argument_Closer = "</" + entry.name + ">\n"
 			arguments_body += argument_Opener
 			arguments_body += argument_Closer
 		self.arguments_body = arguments_body
@@ -88,11 +93,11 @@ class SOAP_Constructor:
 	def compile_SOAP_Message(self):
 		"""Add the pieces of a SOAP packet together in sequence and call that a SOAP message."""
 		SOAP_Message = ""
-		SOAP_Message += self.soap_Envelope_Start
+		SOAP_Message += self.SOAP_ENVELOPE_START
 		SOAP_Message += self.action_Tag_Opener
 		SOAP_Message += self.arguments_body
 		SOAP_Message += self.action_Tag_Closer
-		SOAP_Message += self.soap_Envelope_End
+		SOAP_Message += self.SOAP_ENVELOPE_END
 		self.SOAP_Message = SOAP_Message
 
 	def prepare_clean_soap(self, device, this_action, this_Service):

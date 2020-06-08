@@ -116,12 +116,12 @@ class UPnP_Device:
 			this_Service.name = this_Service.name.replace("urn:schemas-upnp-org:service:", "")
 			this_Service.name = this_Service.name.replace("urn:dslforum-org:service:", "")
 			this_Service.name = this_Service.name.replace(":1", "")
-			print("		Service ID %s: %s" % (x, this_Service.name))
-			print("		Num. of Actions: 		" + str(this_Service.num_actions))
-			print("		Num. of State Variables: 	" + str(this_Service.num_state_variables))
+			print("        Service ID %s: %s" % (x, this_Service.name))
+			print("        Num. of Actions: 		" + str(this_Service.num_actions))
+			print("        Num. of State Variables: 	" + str(this_Service.num_state_variables))
 			print("")
 			x+=1
 
-		if len(self.service_list) > 1:
-			print"        No services to display."
+		if len(self.service_list) < 1:
+			print("        No services to display.")
 

@@ -15,19 +15,19 @@ def extract_Substring_From_Packet_String(data, start, end):
 	return this_String
 
 def extract_Location_String(data):
-	ssdp_Service_Location = extract_Substring_From_Packet_String(data, "LOCATION:", '\n')
+	ssdp_Service_Location = extract_Substring_From_Packet_String(data, "LOCATION:", '\\r\\n')
 	return ssdp_Service_Location
 
 def extract_ST_String(data):
-	ssdp_Service_Type = extract_Substring_From_Packet_String(data, "ST:", '\n')
+	ssdp_Service_Type = extract_Substring_From_Packet_String(data, "ST:", '\\r\\n')
 	return ssdp_Service_Type
 
 def extract_usn_String(data):
-	ssdp_Service_usn = extract_Substring_From_Packet_String(data, "usn:", '\n')
+	ssdp_Service_usn = extract_Substring_From_Packet_String(data, "usn:", '\\r\\n')
 	return ssdp_Service_usn
 
 def extract_Server_String(data):
-	ssdp_Server_String = extract_Substring_From_Packet_String(data, "SERVER:", '\n')
+	ssdp_Server_String = extract_Substring_From_Packet_String(data, "SERVER:", '\\r\\n')
 	#print(ssdp_Server_String)
 	return ssdp_Server_String
 

@@ -48,10 +48,10 @@ def action_menu_print(device, this_service, this_action):
         this_action.name, this_service.name, device.device_infoBundle.deviceType,
         device.device_infoBundle.model_name, device.address)
     print(action_menu_header)
-    print("     Which is an action of:  " + this_service.name)
-    print("     Living on host:         " + device.address)
-    print("     Arguments:          " + str(this_action.num_arguments))
-    print("     State Variables:        " + str(this_action.num_state_variables))
+    print("      Which is an action of:  " + this_service.name)
+    print("      Living on host:         " + device.address)
+    print("      Arguments:          " + str(this_action.num_arguments))
+    print("      State Variables:        " + str(this_action.num_state_variables))
     this_action.print_Action_Arguments()
     print("\n" + ACTION_MENU_STRING)
 
