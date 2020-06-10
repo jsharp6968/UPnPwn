@@ -4,9 +4,9 @@
 class SOAP_Constructor:
 	def __init__(self, address):
 		self.address = address
-		self.SOAP_ENVELOPE_START = """<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/\"
+		self.SOAP_ENVELOPE_START = """<?xml version="1.0"?>\n<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/\"
    s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/\">
-   <s:Body>"""
+   <s:Body>\n"""
 		self.SOAP_ENVELOPE_END = """</s:Body>
 </s:Envelope>"""
 		
@@ -15,16 +15,16 @@ class SOAP_Constructor:
 		"""This has a given xml structure as defined by the UPnP standard."""
 		action_Tag_Opener = "<u:"
 		action_Tag_Opener += action_Name
-		action_Tag_Opener += " xmlns:s=\""
+		action_Tag_Opener += " xmlns:u=\"urn:schemas-upnp-org:service:"
 		action_Tag_Opener += service_Name
-		action_Tag_Opener += "\">"
+		action_Tag_Opener += ":1\">\n"
 		self.action_Tag_Opener = action_Tag_Opener
 
 	def set_Action_Tag_Closer(self, action_Name):
 		"""This has a given xml structure as defined by the UPnP standard."""
 		action_Tag_Closer = "</u:"
 		action_Tag_Closer += action_Name
-		action_Tag_Closer += ">"
+		action_Tag_Closer += ">\n"
 		self.action_Tag_Closer = action_Tag_Closer
 
 	def set_Arguments_Body_Spam(self, arguments_List):

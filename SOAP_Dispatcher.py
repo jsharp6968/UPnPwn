@@ -10,15 +10,15 @@ class SOAP_Dispatcher:
 		self.SOAP_Message = ""
 
 	# Send/receive methods
-	def send_soap_message(self):
+	def send_soap_message(self, serviceType, actionName):
 		reply = "Error - Reply not retrieved"
-		print(self.SOAP_Message)
-		reply = requests.post(self.destination, timeout=5, data=self.SOAP_Message)
+		soapActionHeader = "\"" + serviceType + "#" + actionName + "\""
+		headers = {'SOAPACTION': soapActionHeader, 'CONTENT-TYPE': "text/xml; charset=\"utf-8\""}
 		try:
-			reply = requests.post(self.destination, timeout=5, data=self.SOAP_Message)
+			reply = requests.post(self.destination, timeout=5, data=self.SOAP_Message, headers= headers)
 		except:
 			print("We excepted when POSTing, or when parsing the reply.")
-		print("		Sent a SOAP Message.")
+		print("      Sent a SOAP Message.")
 		return reply
 
 	def flood_SOAP_Message(self, count):
@@ -27,12 +27,9 @@ class SOAP_Dispatcher:
 		failures = 0
 		reply = requests.post(self.destination, timeout = 10, data=self.SOAP_Message)
 		print("		This packet gets us a status_code: ", reply.status_code)
-		#print "		With response: ", reply.text
 		while x < count:
-			#print "		Destination: ", self.destination
 			try:
 				reply = requests.post(self.destination, timeout = 65535, data=self.SOAP_Message)
-				#print "		Posted a packet with status code: ", reply.status_code
 				these_Status_Codes.add(reply.status_code)
 				if 401 == reply.status_code:
 					print("		Trying HTTPDigestAuth!")

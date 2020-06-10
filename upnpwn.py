@@ -134,23 +134,26 @@ def explore_device_after_scpd(device):
     device_menu_after_scpd_print(device)
     prompt = "      %s@%s" % (device.device_infoBundle.deviceType, device.address)
     user_selection = input_handler(prompt)
-    if isinstance(user_selection, str) == False:
-        pass
-    elif "L" in user_selection:
-        device.print_Device_service_list()
-    elif "S" in user_selection:
-        if device.num_services == 1:
-            print("     Only 1 service detected, automatically selecting that one.")
-            explore_service(device, 0)
-        else:
-            if re.search(r'\d+', user_selection):
-                choice_list = re.findall(r'\d+', user_selection)
-                choice = int(choice_list[0])
-                explore_service(device, choice -1)
+    while "Q" not in user_selection:
+        if isinstance(user_selection, str) == False:
+            pass
+        elif "L" in user_selection:
+            device.print_Device_service_list()
+        elif "S" in user_selection:
+            if device.num_services == 1:
+                print("     Only 1 service detected, automatically selecting that one.")
+                explore_service(device, 0)
             else:
-                user_selection_int = int(input("      Enter Service ID > "))
-                explore_service(device, user_selection_int - 1)
-        device_menu_after_scpd_print(device)
+                if re.search(r'\d+', user_selection):
+                    choice_list = re.findall(r'\d+', user_selection)
+                    choice = int(choice_list[0])
+                    explore_service(device, choice -1)
+                else:
+                    user_selection_int = int(input("      Enter Service ID > "))
+                    explore_service(device, user_selection_int - 1)
+            device_menu_after_scpd_print(device)
+        elif "R" in user_selection:
+            return 0
 
 def explore_device(device):
     """Offers the option of fetching SCPD documents, then

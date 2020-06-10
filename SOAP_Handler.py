@@ -33,22 +33,18 @@ class SOAPHandler:
         soap_constructor.prepare_clean_soap(this_device, this_action, this_service)
         soap_dispatcher.destination = soap_constructor.destination
         soap_dispatcher.SOAP_Message = soap_constructor.SOAP_Message
+        soap_parser.arguments_Out_List = soap_constructor.arguments_Out_List
         try:
-            reply = soap_dispatcher.send_soap_message()
-            print("\n\nResponse:\n")
-            print(reply.status_code)
-            print(reply.headers)
-            print(reply.text)
-            print("\n\nEnd of response\n")
-            soap_responses = soap_parser.parse_SOAP_Response(reply.text)
+            reply = soap_dispatcher.send_soap_message(this_service.ST, this_action.name)
             these_status_codes.add(reply.status_code)
-            print("     " + reply.status_code)
+            print("      HTTP Response: " + str(reply.status_code) + "\n")
             if reply.status_code == 200:
+                soap_responses = soap_parser.parse_SOAP_Response(reply.text)
                 for entry, value in list(soap_responses.items()):
                     for variable in this_service.state_variable_table.variables:
                         if entry == variable.name:
                             variable.set_Value(value)
-                            print("matched a variable")
+                            #print("matched a variable")
         except UPnPwnError:
             print("     Error during SOAP transaction. Check network.")
         #soap_responses = self.parse_SOAP_Response(reply.text)
