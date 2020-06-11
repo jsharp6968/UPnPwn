@@ -6,7 +6,6 @@
 import re
 from ssdp_Discover import ssdp_discover
 from scpd_Handler import read_SCPD_Root
-from UPnPwn_File_Handler import save_soap_message
 from SOAP_Handler import SOAPHandler
 from UPnP_Network_Impression import UPnPNetworkImpression
 from UPnPwn_Print_Manager import (action_menu_print, host_menu_print,
@@ -78,11 +77,10 @@ def explore_action(device, this_service, action_name):
             # Send SOAP commands.
             user_selection = input_handler("      Save SOAP packet? y/n")
             dont_drop_it = SOAPHandler(device.address)
-            dont_drop_it.handle_clean_soap(device, this_action, this_service)
             if "Y" in user_selection:
-                save_SOAP_Message(device, this_action, this_service, dont_drop_it.SOAP_Message)
+                dont_drop_it.handle_clean_soap(device, this_action, this_service, 1)
             else:
-                pass
+                dont_drop_it.handle_clean_soap(device, this_action, this_service, 0)
         elif "R" in user_selection:
             return 0
 
@@ -143,6 +141,7 @@ def explore_device_after_scpd(device):
             if device.num_services == 1:
                 print("     Only 1 service detected, automatically selecting that one.")
                 explore_service(device, 0)
+                user_selection = ""
             else:
                 if re.search(r'\d+', user_selection):
                     choice_list = re.findall(r'\d+', user_selection)
@@ -151,7 +150,8 @@ def explore_device_after_scpd(device):
                 else:
                     user_selection_int = int(input("      Enter Service ID > "))
                     explore_service(device, user_selection_int - 1)
-            device_menu_after_scpd_print(device)
+                    device_menu_after_scpd_print(device)
+            user_selection = input_handler(prompt)
         elif "R" in user_selection:
             return 0
 

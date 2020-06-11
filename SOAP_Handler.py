@@ -4,6 +4,7 @@
 from SOAP_Dispatcher import SOAP_Dispatcher
 from SOAP_Constructor import SOAP_Constructor
 from soap_parser import SOAP_Parser
+from UPnPwn_File_Handler import save_soap_message
 from errors import UPnPwnError
 SOAP_ENVELOPE_START = """<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/\"
    s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/\">
@@ -24,7 +25,7 @@ class SOAPHandler:
         self.soap_envelope_end = SOAP_ENVELOPE_END
         self.soap_message = ""
 
-    def handle_clean_soap(self, this_device, this_action, this_service):
+    def handle_clean_soap(self, this_device, this_action, this_service, save_message):
         """Largely deprecated, this is the same as above but only uses clean SOAP."""
         soap_dispatcher = SOAP_Dispatcher(this_device.address)
         soap_constructor = SOAP_Constructor(this_device.address) 
@@ -47,7 +48,8 @@ class SOAPHandler:
                             #print("matched a variable")
         except UPnPwnError:
             print("     Error during SOAP transaction. Check network.")
-        #soap_responses = self.parse_SOAP_Response(reply.text)
+        if save_message == 1:
+            save_soap_message(this_device, this_action, this_service, soap_dispatcher.SOAP_Message)
         return these_status_codes
 
     def handle_soap(self, device, this_action, this_service):
