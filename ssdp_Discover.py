@@ -17,6 +17,8 @@ def found_new_host(this_network, this_ssdp_bundle, address):
     this_device.parse_SSDP_Bundle(this_ssdp_bundle)
 
     this_host = UPnP_Host(address)
+    this_host.config_ID = this_ssdp_bundle.config_ID
+    this_host.boot_ID = this_ssdp_bundle.boot_ID
     this_host.UPnP_Root_XML_Locations.insert(0, this_ssdp_bundle.Location)
     this_device.root_xml_location = this_ssdp_bundle.Location
     this_host.add_UPnP_Device(this_device)

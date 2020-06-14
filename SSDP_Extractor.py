@@ -35,11 +35,20 @@ def extract_HTTP_Code(data):
 	http_Code = int(extract_Substring_From_Packet_String(data, "HTTP/1.1 ", ' '))
 	return http_Code
 
+def extract_BOOT_ID(data):
+	boot_ID = int(extract_Substring_From_Packet_String(data, "BOOTID.UPNP.ORG: ", '\\r\\n'))
+	return boot_ID
+
+def extract_CONFIG_ID(data):
+	config_ID = int(extract_Substring_From_Packet_String(data, "CONFIGID.UPNP.ORG: ", '\\r\\n'))
+	return config_ID
+
 def extract_SSDP_Bundle(data):
 	"""Extract the main aspects of an SSDP packet and store the HTTP response code only
 	if we got a 200."""
 	http_Code = extract_HTTP_Code(data)
 	data = str(data)
+	#print(data)
 	this_SSDP_Bundle = UPnP_SSDP_Bundle('1','1','1','1')
 	if http_Code == 200:
 		this_SSDP_Bundle.http_code = http_Code
@@ -47,15 +56,11 @@ def extract_SSDP_Bundle(data):
 		this_SSDP_Bundle_ST = extract_ST_String(data)
 		this_SSDP_Bundle_usn = extract_usn_String(data)
 		this_SSDP_Bundle_Server = extract_Server_String(data)
+		this_SSDP_Bundle_BOOT_ID = extract_BOOT_ID(data)
+		this_SSDP_Bundle_CONFIG_ID = extract_CONFIG_ID(data)
 		this_SSDP_Bundle = UPnP_SSDP_Bundle(this_SSDP_Bundle_usn, this_SSDP_Bundle_ST, this_SSDP_Bundle_Location, this_SSDP_Bundle_Server)
-	elif "HTTP/1.1 200" in data:
-		print("Running debug code, should have seen the 200")
-		this_SSDP_Bundle.http_code = http_Code
-		this_SSDP_Bundle_Location = extract_Location_String(data)
-		this_SSDP_Bundle_ST = extract_ST_String(data)
-		this_SSDP_Bundle_usn = extract_usn_String(data)
-		this_SSDP_Bundle_Server = extract_Server_String(data)
-		this_SSDP_Bundle = UPnP_SSDP_Bundle(this_SSDP_Bundle_usn, this_SSDP_Bundle_ST, this_SSDP_Bundle_Location, this_SSDP_Bundle_Server)
+		this_SSDP_Bundle.config_ID = this_SSDP_Bundle_CONFIG_ID
+		this_SSDP_Bundle.boot_ID = this_SSDP_Bundle_BOOT_ID
 	elif "HTTP/1.1 2" in data:
 		print("		(!) Received a 2xx but not 200 HTTP code: ", http_Code)
 	else:

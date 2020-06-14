@@ -8,3 +8,5 @@ class UPnP_SSDP_Bundle:
 		self.Location = Location
 		self.Server = Server
 		self.service_id = ""
+		self.config_ID = 0
+		self.boot_ID = 0

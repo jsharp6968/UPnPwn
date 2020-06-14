@@ -9,6 +9,8 @@ class UPnP_Host:
 		self.num_UPnP_Devices = 0
 		self.UPnP_Root_XML_Locations = []
 		self.upnp_devices_list = []
+		self.config_ID = 0
+		self.boot_ID = 0
 
 	def add_UPnP_Device(self, device):
 		self.upnp_devices_list.append(device)
@@ -29,3 +31,5 @@ class UPnP_Host:
 	def print_Basic_Host_Info(self):
 		print("        Address: " + self.address)
 		print("        Devices: " + str(self.num_UPnP_Devices))
+		print("        Config ID: " + str(self.config_ID))
+		print("        Boot ID: " + str(self.boot_ID))
