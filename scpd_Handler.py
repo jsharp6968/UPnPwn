@@ -97,8 +97,8 @@ def read_SCPD_Root(device):
     device = parse_Root_SCPD_XML(scpd_File_Data, device)
     device.purge_Service_Repetitions()
     device.remove_Empty_Services()
-    print("     Parsed root XML and further description documents...")
-    print("     Stored SCPD info...")
+    print("        Parsed root XML and further description documents...")
+    print("        Stored SCPD info...")
     return device
 
     #print "        You may have encountered a machine running a direct pairing service... uTorrent does this."
@@ -260,7 +260,7 @@ def parse_Root_SCPD_XML(scpd_File_Data, device):
     print("        Set all root-XML-derived lists...")
     print("        The current device has the following number of Services: " + str(len(device.service_list)))
     device.refresh_Description_URLs()
-    print("     We are handling: " + str(len(device.scpd_URL_List)) + " description document(s).\n\n")
+    print("        We are handling: " + str(len(device.scpd_URL_List)) + " description document(s).\n\n")
     device = fetch_Service_Description_Documents(device.scpd_URL_List, device)
     return device
 
@@ -292,23 +292,23 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
         if description_Full_URL.strip().endswith(this_Service.description_url.strip()):
             current_Service = this_Service
             break
-    print("     Currently parsing details for service: " + current_Service.name)
+    print("        Currently parsing details for service: " + current_Service.name)
     root = ET.fromstring(description_File_Contents)
     for l1 in root:
         this_Tag1 = l1.tag.upper()
         #print("service desc l1= " + this_Tag1)
         if this_Tag1.endswith("SERVICESTATETABLE"):
-            print("     Found the service's state table.")
+            print("        Found the service's state table.")
             for l2 in l1:
                 this_state_variable_table = current_Service.state_variable_table
                 this_State_Variable = UPnP_State_Variable(l2[0].text.strip(), l2[1].text.strip(), l2.attrib)
-                print("     Adding a state variable named " + l2[0].text.strip() + " to current service, dataType: " + l2[1].text.strip())
+                print("        Adding a state variable named " + l2[0].text.strip() + " to current service, dataType: " + l2[1].text.strip())
                 this_state_variable_table.add_State_Variable(this_State_Variable)
                 current_Service.state_variable_table = this_state_variable_table
                 current_Service.num_state_variables = len(this_state_variable_table.variables)
                 device = update_A_Service(device, current_Service)
                 device.gather_Device_Statistics()
-                print("     This service now has " + str(current_Service.num_state_variables) + " state variable(s) associated with it.")
+                print("        This service now has " + str(current_Service.num_state_variables) + " state variable(s) associated with it.")
         for l2 in l1:
             #print("service desc l2=" + l2.tag)
             if type(l2.text) == l2.tag:
@@ -336,15 +336,15 @@ def parse_SCPD_Description_Document(description_File_Contents, description_Full_
                                 this_action.add_Argument_To_List(this_Argument)
                                 x += 1
                         except:
-                            print("     Going to add an Action to a Service...")
+                            print("        Going to add an Action to a Service...")
                             current_Service.add_Action(this_action)
-                            print("     Successfully added Action " + this_action.name + " to Service " + current_Service.name)
+                            print("        Successfully added Action " + this_action.name + " to Service " + current_Service.name)
                             device = update_A_Service(device, current_Service)
-                            print("     Successfully updated this service!")
+                            print("        Successfully updated this service!")
                 except:
-                    print("     Exception handling an argument list...")
+                    print("        Exception handling an argument list...")
                 device = update_A_Service(device, current_Service)
-    print("     Parsed through a description document...\n\n")
+    print("        Parsed through a description document...\n\n")
     return device
 
 def save_SCPD_Description_Document(description_Full_URL):
@@ -356,9 +356,9 @@ def save_SCPD_Description_Document(description_Full_URL):
 
 def read_SCPD_Description_Document(description_Full_URL, device):
     """Fetch and parse one of the documents which is referred to in the root description document."""
-    print("     Fetching: " + description_Full_URL)
+    print("        Fetching: " + description_Full_URL)
     description_File_Contents = fetch_SCPD_File_Contents(description_Full_URL)
-    print("     Fetched a description document...")
+    print("        Fetched a description document...")
     device = parse_SCPD_Description_Document(description_File_Contents, description_Full_URL, device)
     return device
 
@@ -368,6 +368,6 @@ def fetch_Service_Description_Documents(description_Document_Relative_Paths_List
         description_Full_URL = ""
         description_Full_URL = device.presentation_url + ":" + str(device.presentation_port) + description_Document_Relative_Path
         description_Full_URL = description_Full_URL.strip()
-        print("     Trying this URL: " + description_Full_URL)
+        print("        Trying this URL: " + description_Full_URL)
         device = read_SCPD_Description_Document(description_Full_URL, device)
     return device

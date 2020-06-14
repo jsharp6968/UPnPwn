@@ -46,33 +46,12 @@ class SOAP_Constructor:
 			return "5"
 		elif "BOOLEAN" in argument_Type:
 			# Meant to be 1 for True and 0 for False, but yes/no/true/false tolerated
-			return 0
-		else:
-			print("        Tried to autofill argument " + argument.name + " but we couldn't identify the given datatype.")
-			return "Unidentified datatype"
+			return "0"
+		print("        Tried to autofill argument " + argument.name + 
+			" but we couldn't identify the given datatype: \"" + argument_Type + "\"")
+		return "Unidentified datatype"
 
-	def set_Arguments_Body_Spam(self, arguments_List):
-		"""sfuzz is soon going to make this entirely defunct."""
-		arguments_body = ""
-		num_Arguments_Out = 0
-		arguments_Out_List = []
-		for entry in arguments_List:
-			if entry.direction == "out":
-				num_Arguments_Out += 1
-				arguments_Out_List.append(entry.name)
-				argument_Opener = "<" + entry.name + ">"
-				argument_Closer = "</" + entry.name + ">"
-			else:
-				argument_Opener = "<" + entry.name + ">"
-				argument_Opener += autofill_Argument(entry)
-				argument_Closer = "</" + entry.name + ">"
-			arguments_body += argument_Opener
-			arguments_body += argument_Closer
-		self.arguments_body = arguments_body
-		self.num_Arguments_Out = num_Arguments_Out
-		self.arguments_Out_List = arguments_Out_List
-
-	def set_Arguments_Body(self, arguments_List, manual_Mode):
+	def set_Arguments_Body(self, arguments_List, manual_Mode, null_Mode):
 		"""Takes user input to fill the fields of the variables you're submitting to
 		the service."""
 		arguments_body = ""
@@ -91,7 +70,10 @@ class SOAP_Constructor:
 					user_Input = input("		Enter a value for %s: " % entry.name)
 					argument_Opener += user_Input
 				else:
-					argument_Opener += autofill_Argument(entry)
+					if null_Mode == 1:
+						pass
+					else:
+						argument_Opener += self.autofill_Argument(entry)
 			arguments_body += argument_Opener
 			arguments_body += argument_Closer
 		self.arguments_body = arguments_body
@@ -123,10 +105,10 @@ class SOAP_Constructor:
 		SOAP_Message += self.SOAP_ENVELOPE_END
 		self.SOAP_Message = SOAP_Message
 
-	def prepare_clean_soap(self, device, this_action, this_Service, manual_Mode):
+	def prepare_clean_soap(self, device, this_action, this_Service, manual_Mode, null_Mode):
 		self.set_Action_Tag_Opener(this_action.name, this_Service.name)
 		self.set_Action_Tag_Closer(this_action.name)
-		self.set_Arguments_Body(this_action.arguments, manual_Mode)
+		self.set_Arguments_Body(this_action.arguments, manual_Mode, null_Mode)
 		self.set_Control_URL(this_Service.control_url)
 		self.set_Control_Port(device.presentation_port)
 		self.set_SOAP_Destination()

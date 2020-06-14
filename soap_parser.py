@@ -22,11 +22,11 @@ class SOAP_Parser:
 			this_Response_End = reply_Text.find(entry, this_Response_Start + 3)
 			if this_Response_End == -1:
 				SOAP_Responses[entry] = "NULL"
-				print("      ", entry, ": ", "NULL")
+				#print("      ", entry, ": ", "NULL")
 			else:
 				this_Response_End -= 5
 				this_Response = reply_Text[this_Response_Start : this_Response_End]
-				this_Response = this_Response.strip(">")
+				this_Response = this_Response.strip("></\n ")
 				SOAP_Responses[entry] = str(this_Response)
-				print("      ", entry, ": ", this_Response)
+				#print("      ", entry, ": ", this_Response)
 		return SOAP_Responses

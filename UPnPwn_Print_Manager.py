@@ -28,7 +28,8 @@ DEVICE_MENU_OPTIONS = """        L | l = List SSDP-discovered services (already 
         R | r = Return to the Host menu\n"""
 
 DEVICE_MENU_AFTER_SCPD_STRING = """  
-        L | l = List Services (already listed above)
+        L | l = List Services (already listed above, but this clears duplicates)
+        P | p = Profile device
         S | s = Specify a service to interact with
         R | r = Return to the Host menu\n"""
 
@@ -37,6 +38,21 @@ ACTION_MENU_STRING = """
         S | s = List state variables for this action
         C | c = Send SOAP commands to execute this action (fun)
         R | r = Return to the Service menu\n"""
+
+PROFILE_MENU_STRING = """
+        P | p = Call every action that requires no input, gathering all state variables
+        N | n = Null-check every action, by submitting nothing to every action that requires
+        input, just to see what it does.
+        S | s = Print all state variables, empty or filled, on this device
+        R | r = Return to the Device menu\n"""
+
+def profile_menu_print(device):
+    print(BLOCK)
+    print("        ##### Profile Menu for %s on %s at %s #####" % (device.device_infoBundle.deviceType,
+                                                               device.device_infoBundle.model_name,
+                                                               device.address))
+    device.device_infoBundle.print_InfoBundle()
+    print(PROFILE_MENU_STRING)
 
 def action_menu_print(device, this_service, this_action):
     """Print for the action menu. Requires discovery to have been done and a sensibly filled

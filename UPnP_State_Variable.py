@@ -5,6 +5,7 @@ class UPnP_State_Variable:
 		self.name = name
 		self.datatype = datatype
 		self.is_eventing = is_eventing
+		self.is_filled = False
 		if datatype.upper().strip() == "STRING":
 			self.value = ""
 		elif datatype.upper().strip() == "BOOLEAN":
@@ -14,6 +15,7 @@ class UPnP_State_Variable:
 
 	def set_Value(self, value):
 		self.value = value
+		self.is_filled = True
 
 	def set_Name(self, name):
 		self.name = name

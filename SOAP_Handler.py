@@ -25,28 +25,32 @@ class SOAPHandler:
         self.soap_envelope_end = SOAP_ENVELOPE_END
         self.soap_message = ""
 
-    def handle_clean_soap(self, this_device, this_action, this_service, save_message, manual_mode):
+    def handle_clean_soap(self, this_device, this_action, this_service, save_message, manual_mode, null_Mode):
         """This method handles all regular SOAP transactions, in manual mode when you're not 
         trying to break things."""
         soap_dispatcher = SOAP_Dispatcher(this_device.address)
         soap_constructor = SOAP_Constructor(this_device.address) 
         soap_parser = SOAP_Parser()
         these_status_codes = set()
-        soap_constructor.prepare_clean_soap(this_device, this_action, this_service, manual_mode)
+        soap_constructor.prepare_clean_soap(this_device, this_action, this_service, manual_mode, null_Mode  )
         soap_dispatcher.destination = soap_constructor.destination
         soap_dispatcher.SOAP_Message = soap_constructor.SOAP_Message
         soap_parser.arguments_Out_List = soap_constructor.arguments_Out_List
         try:
             reply = soap_dispatcher.send_soap_message(this_service.ST, this_action.name)
-            these_status_codes.add(reply.status_code)
-            print("      HTTP Response: " + str(reply.status_code) + "\n")
-            if reply.status_code == 200:
-                soap_responses = soap_parser.parse_SOAP_Response(reply.text)
-                for entry, value in list(soap_responses.items()):
-                    for variable in this_service.state_variable_table.variables:
-                        if entry == variable.name:
-                            variable.set_Value(value)
-                            #print("matched a variable")
+            if isinstance(reply, str) == False:
+                these_status_codes.add(reply.status_code)
+                print("      HTTP Response: " + str(reply.status_code) + "\n")
+                if reply.status_code == 200:
+                    soap_responses = soap_parser.parse_SOAP_Response(reply.text)
+                    for entry, value in list(soap_responses.items()):
+                        for variable in this_service.state_variable_table.variables:
+                            if entry == variable.name:
+                                variable.set_Value(value)
+                                #print("matched a variable")
+            else:
+                print("(!) Oops! We should have gotten a response object, instead we got a String; "
+                    + reply)
         except UPnPwnError:
             print("     Error during SOAP transaction. Check network.")
         if save_message == 1:

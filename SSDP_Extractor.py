@@ -36,11 +36,11 @@ def extract_HTTP_Code(data):
 	return http_Code
 
 def extract_BOOT_ID(data):
-	boot_ID = int(extract_Substring_From_Packet_String(data, "BOOTID.UPNP.ORG: ", '\\r\\n'))
+	boot_ID = extract_Substring_From_Packet_String(data, "BOOTID.UPNP.ORG: ", '\\r\\n')
 	return boot_ID
 
 def extract_CONFIG_ID(data):
-	config_ID = int(extract_Substring_From_Packet_String(data, "CONFIGID.UPNP.ORG: ", '\\r\\n'))
+	config_ID = extract_Substring_From_Packet_String(data, "CONFIGID.UPNP.ORG: ", '\\r\\n')
 	return config_ID
 
 def extract_SSDP_Bundle(data):

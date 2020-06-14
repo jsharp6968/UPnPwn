@@ -41,15 +41,13 @@ class UPnP_Action:
 		self.num_arguments = 0
 		self.num_state_variables = 0
 		self.ID = 0
-
-		self.returns_Output = False
-
+		self.requires_Input = False
 		self.http_codes = []
 
-	def check_Returns_Output(self):
+	def check_Requires_Input(self):
 		for argument in self.arguments:
 			if argument.direction.upper() == "IN":
-				self.returns_Output = True
+				self.requires_Input = True
 
 	def set_Arguments_List(self, arguments):
 		self.arguments = arguments
