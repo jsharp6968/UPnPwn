@@ -110,7 +110,7 @@ def explore_service(device, service_id):
             #this_service.print_Service_Actions()
             service_menu_print(device, this_service)
         elif "A" in user_selection:
-            # Select an action. I an int is entered after 'a' ie 'a3' then
+            # Select an action. If an int is entered after 'a' ie 'a3' then
             # the corresponding action is selected, else you're prompted.
             # Print the menu on return.
             if re.search(r'\d+', user_selection):
@@ -131,8 +131,9 @@ def explore_device_after_scpd(device):
     nummbers, firmware codes etc."""
     device_menu_after_scpd_print(device)
     prompt = "      %s@%s" % (device.device_infoBundle.deviceType, device.address)
-    user_selection = input_handler(prompt)
+    user_selection = ""
     while "Q" not in user_selection:
+        user_selection = input_handler(prompt)
         if isinstance(user_selection, str) == False:
             pass
         elif "L" in user_selection:
@@ -151,7 +152,6 @@ def explore_device_after_scpd(device):
                     user_selection_int = int(input("      Enter Service ID > "))
                     explore_service(device, user_selection_int - 1)
                     device_menu_after_scpd_print(device)
-            user_selection = input_handler(prompt)
         elif "R" in user_selection:
             return 0
 
@@ -163,7 +163,11 @@ def explore_device(device):
     scpd_has_been_fetched = device.scpd_has_been_fetched
     while "Q" not in user_selection:
         if scpd_has_been_fetched:
-            explore_device_after_scpd(device)
+            user_selection = input_handler("        Proceed to populated device menu? Y/N")
+            if "Y" in user_selection:
+                explore_device_after_scpd(device)
+            else:
+                return 0
         else:
             device_menu_before_scpd_print(device)
             prompt = "      Device-%s@%s" % (device.host_index +1, device.address)
