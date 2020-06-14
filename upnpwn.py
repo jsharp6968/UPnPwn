@@ -78,9 +78,9 @@ def explore_action(device, this_service, action_name):
             user_selection = input_handler("      Save SOAP packet? y/n")
             dont_drop_it = SOAPHandler(device.address)
             if "Y" in user_selection:
-                dont_drop_it.handle_clean_soap(device, this_action, this_service, 1)
+                dont_drop_it.handle_clean_soap(device, this_action, this_service, 1, 1)
             else:
-                dont_drop_it.handle_clean_soap(device, this_action, this_service, 0)
+                dont_drop_it.handle_clean_soap(device, this_action, this_service, 0, 1)
         elif "R" in user_selection:
             return 0
 

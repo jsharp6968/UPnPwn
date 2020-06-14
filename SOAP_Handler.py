@@ -25,13 +25,14 @@ class SOAPHandler:
         self.soap_envelope_end = SOAP_ENVELOPE_END
         self.soap_message = ""
 
-    def handle_clean_soap(self, this_device, this_action, this_service, save_message):
-        """Largely deprecated, this is the same as above but only uses clean SOAP."""
+    def handle_clean_soap(self, this_device, this_action, this_service, save_message, manual_mode):
+        """This method handles all regular SOAP transactions, in manual mode when you're not 
+        trying to break things."""
         soap_dispatcher = SOAP_Dispatcher(this_device.address)
         soap_constructor = SOAP_Constructor(this_device.address) 
         soap_parser = SOAP_Parser()
         these_status_codes = set()
-        soap_constructor.prepare_clean_soap(this_device, this_action, this_service)
+        soap_constructor.prepare_clean_soap(this_device, this_action, this_service, manual_mode)
         soap_dispatcher.destination = soap_constructor.destination
         soap_dispatcher.SOAP_Message = soap_constructor.SOAP_Message
         soap_parser.arguments_Out_List = soap_constructor.arguments_Out_List
@@ -51,20 +52,3 @@ class SOAPHandler:
         if save_message == 1:
             save_soap_message(this_device, this_action, this_service, soap_dispatcher.SOAP_Message)
         return these_status_codes
-
-    def handle_soap(self, device, this_action, this_service):
-        """An entry point for the main SOAP handling method, allows you to hit switches to choose
-        SOAP type."""
-        #selection = raw_input("        A = Automatic, else manual > ")
-        soap_constructor = SOAP_Constructor()
-        selection = "A"
-        if "D" in selection.upper():
-            print("     This is dirty soap!")
-            return 0
-        if "A" in selection.upper():
-            soap_constructor.prepare_auto_soap(device, this_action, this_service)
-            self.handle_clean_soap(device, this_action, this_service)
-            print("     This is automatic soap!")
-            return 0
-        self.handle_clean_soap(device, this_action, this_service)
-        return 0

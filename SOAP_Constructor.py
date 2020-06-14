@@ -27,6 +27,30 @@ class SOAP_Constructor:
 		action_Tag_Closer += ">\n"
 		self.action_Tag_Closer = action_Tag_Closer
 
+	def autofill_Argument(self, argument):
+		argument_Type = argument.datatype.upper()
+		if "UI2" in argument_Type:
+			# Unsigned 16-bit integer, max value = 65535
+			return "1"
+		elif "UI4" in argument_Type:
+			# Unsigned 32-bit integer, max value = 4,294,967,295
+			return "2"
+		elif "I2" in argument_Type:
+			# Signed 16-bit integer, range -32,768 to 32,767
+			return "3"
+		elif "I4" in argument_Type:
+			# Signed 32-bit integer, range -2,147,483,648 to 2,147,483,647
+			return "4"
+		elif "STRING" in argument_Type:
+			# Unlimited string, though UPnP requires UTF-8
+			return "5"
+		elif "BOOLEAN" in argument_Type:
+			# Meant to be 1 for True and 0 for False, but yes/no/true/false tolerated
+			return 0
+		else:
+			print("        Tried to autofill argument " + argument.name + " but we couldn't identify the given datatype.")
+			return "Unidentified datatype"
+
 	def set_Arguments_Body_Spam(self, arguments_List):
 		"""sfuzz is soon going to make this entirely defunct."""
 		arguments_body = ""
@@ -39,12 +63,8 @@ class SOAP_Constructor:
 				argument_Opener = "<" + entry.name + ">"
 				argument_Closer = "</" + entry.name + ">"
 			else:
-				if "UINT" in entry.datatype.upper():
-					user_Input = 99999999999
-				else:
-					user_Input = "-1"
 				argument_Opener = "<" + entry.name + ">"
-				argument_Opener += str(user_Input)
+				argument_Opener += autofill_Argument(entry)
 				argument_Closer = "</" + entry.name + ">"
 			arguments_body += argument_Opener
 			arguments_body += argument_Closer
@@ -52,7 +72,7 @@ class SOAP_Constructor:
 		self.num_Arguments_Out = num_Arguments_Out
 		self.arguments_Out_List = arguments_Out_List
 
-	def set_Arguments_Body(self, arguments_List):
+	def set_Arguments_Body(self, arguments_List, manual_Mode):
 		"""Takes user input to fill the fields of the variables you're submitting to
 		the service."""
 		arguments_body = ""
@@ -65,10 +85,13 @@ class SOAP_Constructor:
 				argument_Opener = "<" + entry.name + ">"
 				argument_Closer = "</" + entry.name + ">\n"
 			else:
-				user_Input = input("		Enter a value for %s: " % entry.name)
 				argument_Opener = "<" + entry.name + ">"
-				argument_Opener += user_Input
 				argument_Closer = "</" + entry.name + ">\n"
+				if manual_Mode == 1:
+					user_Input = input("		Enter a value for %s: " % entry.name)
+					argument_Opener += user_Input
+				else:
+					argument_Opener += autofill_Argument(entry)
 			arguments_body += argument_Opener
 			arguments_body += argument_Closer
 		self.arguments_body = arguments_body
@@ -100,28 +123,10 @@ class SOAP_Constructor:
 		SOAP_Message += self.SOAP_ENVELOPE_END
 		self.SOAP_Message = SOAP_Message
 
-	def prepare_clean_soap(self, device, this_action, this_Service):
+	def prepare_clean_soap(self, device, this_action, this_Service, manual_Mode):
 		self.set_Action_Tag_Opener(this_action.name, this_Service.name)
 		self.set_Action_Tag_Closer(this_action.name)
-		self.set_Arguments_Body(this_action.arguments)
-		self.set_Control_URL(this_Service.control_url)
-		self.set_Control_Port(device.presentation_port)
-		self.set_SOAP_Destination()
-		self.compile_SOAP_Message()
-
-	def prepare_Dirty_SOAP(self, device, this_action, this_Service):
-		self.set_Action_Tag_Opener(this_action.name, this_Service.name)
-		self.set_Action_Tag_Closer(this_action.name)
-		self.set_Arguments_Body(this_action.arguments)
-		self.set_Control_URL(this_Service.control_url)
-		self.set_Control_Port(device.presentation_port)
-		self.set_SOAP_Destination()
-		self.compile_SOAP_Message()
-
-	def prepare_auto_soap(self, device, this_action, this_Service):
-		self.set_Action_Tag_Opener(this_action.name, this_Service.name)
-		self.set_Action_Tag_Closer(this_action.name)
-		self.set_Arguments_Body_Spam(this_action.arguments)
+		self.set_Arguments_Body(this_action.arguments, manual_Mode)
 		self.set_Control_URL(this_Service.control_url)
 		self.set_Control_Port(device.presentation_port)
 		self.set_SOAP_Destination()

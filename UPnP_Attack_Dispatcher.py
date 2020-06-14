@@ -28,9 +28,9 @@ class UPnP_Attack_Dispatcher:
 		for service in self.target_device.service_list:
 			for action in service.actions:
 				print("		Now testing ", action.name, " in service ", service.name.strip(), " .")
-				action.http_codes = dontDropIt.handle_Some_SOAP(self.target_device, action, service, "Dirty")
+				dont_drop_it.handle_clean_soap(device, this_action, this_service, 0)
 				#if 200 in action.http_codes:
-				dontDropIt.save_SOAP_Message(self.target_device, action, service)
+				#dontDropIt.save_SOAP_Message(self.target_device, action, service)
 				total += 1
 		print("		Conducted ", total, " tests in total.")
 		interactable_Count = 0

@@ -27,15 +27,13 @@ DEVICE_MENU_OPTIONS = """        L | l = List SSDP-discovered services (already 
         F | f = Fetch and parse all SCPD documents
         R | r = Return to the Host menu\n"""
 
-DEVICE_MENU_AFTER_SCPD_STRING = """
-        H | h = Hail-Mary Test - Send '$(poweroff)' to every action (loud/fun)  
+DEVICE_MENU_AFTER_SCPD_STRING = """  
         L | l = List Services (already listed above)
         S | s = Specify a service to interact with
         R | r = Return to the Host menu\n"""
 
 ACTION_MENU_STRING = """
         A | a = List arguments of this action
-        H | h = Hail-Mary Test - Send '$(poweroff)' to every action (loud/fun)
         S | s = List state variables for this action
         C | c = Send SOAP commands to execute this action (fun)
         R | r = Return to the Service menu\n"""
