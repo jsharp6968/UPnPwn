@@ -4,6 +4,7 @@
         Some day, it'll break UPnP the way sqlmap breaks poorly sanitised SQL."""
 #!/usr/bin/env python3
 import re
+from UPnPwn_File_Handler import create_output_dir
 from ssdp_Discover import ssdp_discover
 from scpd_Handler import read_SCPD_Root
 from SOAP_Handler import SOAPHandler
@@ -29,7 +30,6 @@ def input_handler(prompt):
     of case handling. This is lazy.
     Checks every run for 'Q' or 'EXIT'."""
     prompt = "\n" + prompt + " > "
-    user_selection = ""
     user_selection = input(prompt)
 
 
@@ -51,10 +51,12 @@ def explore_action(device, this_service, action_name):
     """
     this_action = this_service.get_Action_By_Name(action_name)
     user_selection = ""
-    prompt = "  Action: %s      Service: %s     On: %s@%s" % (this_action.name,
-                                                              this_service.name,
-                                                              device.device_infoBundle.deviceType,
-                                                              device.address)
+    prompt = "  Action: %s      Service: %s     On: %s@%s" % (
+        this_action.name,
+        this_service.name,
+        device.device_infoBundle.deviceType,
+        device.address)
+
     while "Q" not in user_selection:
         action_menu_print(device, this_service, this_action)
         user_selection = input_handler(prompt)
@@ -137,9 +139,15 @@ def profile_device(device):
             this_Profiler.profile_Null_Actions()
         elif "S" in user_selection:
             this_Profiler.print_All_State_Variables()
+        elif "X" in user_selection:
+            this_Profiler.profile_xxe()
         elif "R" in user_selection:
             return 0
 
+def xxe_test_host_devices(host):
+    for device in host.upnp_devices_list:
+        this_Profiler = UPnPwn_Profiler(device)
+        this_Profiler.profile_xxe()
 
 def explore_device_after_scpd(device):
     """Allows you to choose a service to interact with, alongside
@@ -207,6 +215,9 @@ def explore_host(host):
     """Eats non-strings, loops input same as main_menu.
     -  D is for selecting a device, return to the main menu"""
     user_selection = ""
+    for device in host.upnp_devices_list:
+        device = read_SCPD_Root(device)
+        device.scpd_has_been_fetched = True
     while "Q" not in user_selection:
         host_menu_print(host)
         user_selection = input_handler("      %s" % host.address)
@@ -224,6 +235,8 @@ def explore_host(host):
                 user_selection_int = int(input("      Enter device index > "))
                 device = host.upnp_devices_list[user_selection_int -1]
             explore_device(device)
+        elif "X" in user_selection:
+            xxe_test_host_devices(host)
         elif "M" in user_selection:
             return 0
 
@@ -237,6 +250,8 @@ def main_menu():
     """
     # - Instantiates a Network Impression.
     this_network = UPnPNetworkImpression(0)
+    this_network = ssdp_discover(this_network)
+    list_hosts(this_network)
     user_selection = ""
     while "Q" not in user_selection:
         # - Iterates a query on a string for the presence of commands. Each command is one letter.
@@ -254,8 +269,11 @@ def main_menu():
                 print("        Only 1 host detected, automatically selecting that one.")
                 explore_host(this_network.hosts_list[0])
             else:
-                user_selection = int(input("      Enter host ID > "))
-                explore_host(this_network.hosts_list[user_selection - 1])
+                try:
+                    user_selection = int(input("      Enter host ID > "))
+                    explore_host(this_network.hosts_list[user_selection - 1])
+                except:
+                    print("Oops")
 
 def main():
     """Prints info and goes into main_menu, which loops. Zero Input."""
@@ -267,6 +285,7 @@ def main():
     print("        " + __email__)
     print("        " + __author__)
     print("\n\n")
+    create_output_dir()
     main_menu()
 
 if __name__ == '__main__':

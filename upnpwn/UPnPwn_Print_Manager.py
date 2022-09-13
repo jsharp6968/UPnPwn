@@ -10,7 +10,8 @@ MAIN_MENU_STRING = """        Q | q | exit = Exit the program
 
 HOST_MENU_STRING = """
         D | d = Specify a device on this host whose services you want to explore
-        M | m = Return to the main menu\n"""
+        M | m = Return to the main menu
+        X | x = Run some tests to see whether this host might have low-hanging XXE fruit\n"""
 
 SERVICE_MENU_STRING = """
         L | l = List all actions defined by this service (already listed above, but this clears duplicates)
@@ -44,7 +45,8 @@ PROFILE_MENU_STRING = """
         N | n = Null-check every action, by submitting nothing to every action that requires
         input, just to see what it does.
         S | s = Print all state variables, empty or filled, on this device
-        R | r = Return to the Device menu\n"""
+        R | r = Return to the Device menu
+        X | x = Test some XXE techniques on this device\n"""
 
 def profile_menu_print(device):
     print(BLOCK)

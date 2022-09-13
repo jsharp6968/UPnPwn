@@ -15,7 +15,7 @@ class SOAP_Dispatcher:
 		soapActionHeader = "\"" + serviceType + "#" + actionName + "\""
 		headers = {'SOAPACTION': soapActionHeader, 'CONTENT-TYPE': "text/xml; charset=\"utf-8\""}
 		try:
-			reply = requests.post(self.destination, timeout=5, data=self.SOAP_Message, headers= headers)
+			reply = requests.post(self.destination, timeout=5, data=self.SOAP_Message, headers=headers)
 		except:
 			print("We excepted when POSTing, or when parsing the reply.")
 		print("      Sent a SOAP Message.")
@@ -25,11 +25,11 @@ class SOAP_Dispatcher:
 		these_Status_Codes = set()
 		x = 0
 		failures = 0
-		reply = requests.post(self.destination, timeout = 10, data=self.SOAP_Message)
+		reply = requests.post(self.destination, timeout=10, data=self.SOAP_Message)
 		print("		This packet gets us a status_code: ", reply.status_code)
 		while x < count:
 			try:
-				reply = requests.post(self.destination, timeout = 65535, data=self.SOAP_Message)
+				reply = requests.post(self.destination, timeout=65535, data=self.SOAP_Message)
 				these_Status_Codes.add(reply.status_code)
 				if 401 == reply.status_code:
 					print("		Trying HTTPDigestAuth!")

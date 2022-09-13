@@ -38,7 +38,7 @@ class SOAPHandler:
         soap_parser.arguments_Out_List = soap_constructor.arguments_Out_List
         try:
             reply = soap_dispatcher.send_soap_message(this_service.ST, this_action.name)
-            if isinstance(reply, str) == False:
+            if not isinstance(reply, str):
                 these_status_codes.add(reply.status_code)
                 print("      HTTP Response: " + str(reply.status_code) + "\n")
                 if reply.status_code == 200:
@@ -55,4 +55,40 @@ class SOAPHandler:
             print("     Error during SOAP transaction. Check network.")
         if save_message == 1:
             save_soap_message(this_device, this_action, this_service, soap_dispatcher.SOAP_Message)
+        return these_status_codes
+
+    def handle_xxe_soap(self, this_device, this_action, this_service, injection_template, injection_reference):
+        """This method handles all regular SOAP transactions, in manual mode when you're not
+        trying to break things."""
+        soap_dispatcher = SOAP_Dispatcher(this_device.address)
+        soap_constructor = SOAP_Constructor(this_device.address)
+        soap_parser = SOAP_Parser()
+        these_status_codes = set()
+        soap_constructor.prepare_xxe_soap(this_device, this_action, this_service, injection_reference)
+        soap_dispatcher.destination = soap_constructor.destination
+        soap_dispatcher.SOAP_Message = soap_constructor.SOAP_Message
+
+        # Overwrite the normal SOAP packet with malicious XXE goodness
+        temp_soap_message = soap_dispatcher.SOAP_Message
+        lines = temp_soap_message.splitlines(keepends=True)
+        new_soap_message = lines[0] + injection_template
+        for x in range(1, len(lines)):
+            new_soap_message += lines[x]
+        soap_dispatcher.SOAP_Message = new_soap_message
+
+        #print(soap_dispatcher.SOAP_Message)
+        soap_parser.arguments_Out_List = soap_constructor.arguments_Out_List
+        try:
+            reply = soap_dispatcher.send_soap_message(this_service.ST, this_action.name)
+            if not isinstance(reply, str):
+                these_status_codes.add(reply.status_code)
+                print("      HTTP Response: " + str(reply.status_code) + "\n")
+                if not reply.status_code == 500:
+                    print(reply.text)
+            else:
+                print("(!) Oops! We should have gotten a response object, instead we got a String; "
+                    + reply)
+        except UPnPwnError:
+            print("     Error during SOAP transaction. Check network.")
+        save_soap_message(this_device, this_action, this_service, soap_dispatcher.SOAP_Message)
         return these_status_codes

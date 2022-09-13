@@ -1,4 +1,3 @@
-#! /usr/bin/env python3
 from UPnP_State_Variable_Table import *
 
 # UPnP Standard 1.0 Error Codes
@@ -37,7 +36,7 @@ class UPnP_Action:
 	def __init__(self, name):
 		self.name = name
 		self.arguments = set()
-		self.state_variable_table= UPnP_State_Variable_Table(name)
+		self.state_variable_table = UPnP_State_Variable_Table(name)
 		self.num_arguments = 0
 		self.num_state_variables = 0
 		self.ID = 0
@@ -69,7 +68,7 @@ class UPnP_Action:
 		self.num_state_variables = len(self.state_variable_table.variables)
 		print("The svt contains:")
 		for entry in self.state_variable_table.variables:
-			print("Variable: ", variable.name)
+			print("Variable: ", entry.name)
 		print("And that's it.")
 		for entry in self.arguments:
 			this_Argument = entry.related_state_variable

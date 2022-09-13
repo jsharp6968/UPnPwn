@@ -1,7 +1,8 @@
 """SOAP as a protocol has various uses, so why not a module for automated SOAP fuzzing.
 Ideally it can be used with a separate fuzzer like sfuzz."""
 #! /usr/bin/env python3
-from SOAP_Handler import *
+import SOAP_Handler
+import requests
 
 class dirtySOAP_Handler(SOAP_Handler):
 	def __init__(self, address_String):

@@ -3,7 +3,8 @@ utility code, in order to make it as flexible and modular as possible. I've dump
 a few choice functions in here but really"""
 #! /usr/bin/env python3
 from dirtySOAP import *
-from SOAP_Handler import *
+import SOAP_Handler
+import dirtySOAP
 
 class UPnP_Attack_Dispatcher:
 	def __init__(self, target_device):
@@ -23,11 +24,12 @@ class UPnP_Attack_Dispatcher:
 
 	def type_Error_Footprint(self, device, this_action, this_Service):
 		"""Attempt to find errors in an implementation by submitting data of the wrong datatype to a service."""
+		dont_drop_it = SOAP_Handler(self.target_device_address)
 		total = 0
 		type_List = [ "int", "float", "char", "byte", "string", "bool",  "shellcode" ]
-		for service in self.target_device.service_list:
-			for action in service.actions:
-				print("		Now testing ", action.name, " in service ", service.name.strip(), " .")
+		for this_service in self.target_device.service_list:
+			for action in this_service.actions:
+				print("		Now testing ", action.name, " in service ", this_service.name.strip(), " .")
 				dont_drop_it.handle_clean_soap(device, this_action, this_service, 0)
 				#if 200 in action.http_codes:
 				#dontDropIt.save_SOAP_Message(self.target_device, action, service)
@@ -83,7 +85,7 @@ class UPnP_Attack_Dispatcher:
 		print("		Got ", h401_count, " total HTTP 401 Errors and ", h500_count, " total HTTP 500 Errors.")
 
 	def send_Dirty_SOAP(self, this_action, this_Service):
-		"""Same as the regular SOAP send function, but with setted HTTP response codes.
+		"""Same as the regular SOAP send function, but with set HTTP response codes.
 		Probably defunct now, but as the SOAP handling code is in flux I'll keep it for now."""
 		these_Status_Codes = set()
 		dirt = input("		Enter some dirt to send as an action argument > ")
